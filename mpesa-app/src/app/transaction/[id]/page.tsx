@@ -127,13 +127,13 @@ export default function TransactionDetail() {
               {getInitials(transaction.recipient_name || transaction.description || 'TX')}
             </div>
 
-            {/* Name */}
-            <p className="text-xl font-medium uppercase">
+            {/* Name - reduced size to fit one line */}
+            <p className="text-lg font-medium uppercase text-center">
               {transaction.recipient_name || 'Unknown Recipient'}
             </p>
 
-            {/* Amount - Positive in green */}
-            <p className={`text-2xl font-medium ${isDeposit ? 'text-[]' : 'text-white-500'}`}>
+            {/* Amount - reduced size to fit one line */}
+            <p className={`text-xl font-medium ${isDeposit ? 'text-[]' : 'text-white-500'}`}>
               {isDeposit ? '+' : '-'} KSH. {Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </p>
 
