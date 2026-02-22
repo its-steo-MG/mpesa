@@ -1,0 +1,21 @@
+{
+  "name": "M-PESA",
+  "short_name": "M-Pesa",
+  "description": "Send money, pay bills, withdraw cash - all in one app",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#00A651",
+  "icons": [
+    {
+      "src": "/mpesa icon.webp",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/mpesa icon.webp",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
