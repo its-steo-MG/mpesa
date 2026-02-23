@@ -21,6 +21,15 @@ import {
   Banknote,
   ArrowDown,
   Radio,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  Globe,
+  Scan,
+  Building2,
+  ShoppingCart,
+  User,
+  Smartphone,
+  X,
 } from 'lucide-react'
 import axios from 'axios'
 import Image from 'next/image'
@@ -43,27 +52,33 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null)
   const [isScrolled, setIsScrolled] = useState(false)
 
- // Dynamic greeting - only morning / afternoon / evening
-useEffect(() => {
-  const updateGreeting = () => {
-    const hour = new Date().getHours();
+  // Bottom sheet states
+  const [showSendModal, setShowSendModal] = useState(false)
+  const [showPayModal, setShowPayModal] = useState(false)
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false)
+  const [showAirtimeModal, setShowAirtimeModal] = useState(false)
 
-    if (hour >= 5 && hour < 12) {
-      setGreeting('Good morning');
-    } else if (hour >= 12 && hour < 17) {
-      setGreeting('Good afternoon');
-    } else if (hour >= 17) {           // 17:00 – 23:59
-      setGreeting('Good evening');
-    } else {                           // 00:00 – 04:59
-      setGreeting('Good morning');     // ← this is the key fix
-    }
-  };
+  // Dynamic greeting
+  useEffect(() => {
+    const updateGreeting = () => {
+      const hour = new Date().getHours();
 
-  updateGreeting();
+      if (hour >= 5 && hour < 12) {
+        setGreeting('Good morning');
+      } else if (hour >= 12 && hour < 17) {
+        setGreeting('Good afternoon');
+      } else if (hour >= 17) {
+        setGreeting('Good evening');
+      } else {
+        setGreeting('Good morning');
+      }
+    };
 
-  const interval = setInterval(updateGreeting, 60 * 60 * 1000);
-  return () => clearInterval(interval);
-}, []);
+    updateGreeting();
+
+    const interval = setInterval(updateGreeting, 60 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('mpesa_access_token')
@@ -96,25 +111,11 @@ useEffect(() => {
         })
         setTransactions(txRes.data.slice(0, 1) || [])
 
+        // Updated: only images from public folder
         setAds([
-          {
-            title: 'Zoea Ku-Invest as you spend on Ziidi Money Market Fund.',
-            buttonText: 'Opt In',
-            terms: 'T&Cs apply',
-            image: 'https://via.placeholder.com/300x120/00A651/FFFFFF?text=Ziidi+Invest',
-          },
-          {
-            title: 'Handle Njaanjuary Like a Pro na FULIZA',
-            buttonText: 'Learn How',
-            terms: 'T&Cs apply',
-            image: 'https://via.placeholder.com/300x120/006633/FFFFFF?text=Fuliza+Pro',
-          },
-          {
-            title: 'Jipange Kifedha ku-cheki credit status yako',
-            buttonText: 'JIPANGE KIFEDHA',
-            terms: 'T&Cs apply',
-            image: 'https://via.placeholder.com/300x120/004D33/FFFFFF?text=Credit+Check',
-          },
+          { image: '/ads/ziidi-invest.jpg' },
+          { image: '/ads/fuliza.jpg' },
+          { image: '/ads/credit.jpg' },
         ])
       } catch (err: any) {
         console.error('Data fetch failed:', err)
@@ -197,11 +198,13 @@ useEffect(() => {
       ),
       label: 'SEND AND REQUEST',
       color: 'bg-[#00C853]',
+      onClick: () => setShowSendModal(true),
     },
     {
       icon: <HandCoins className="w-5 h-5 text-white sm:w-5.5 sm:h-5.5" />,
       label: 'PAY',
       color: 'bg-[#2196F3]',
+      onClick: () => setShowPayModal(true),
     },
     {
       icon: (
@@ -212,28 +215,28 @@ useEffect(() => {
       ),
       label: 'WITHDRAW',
       color: 'bg-[#F44336]',
+      onClick: () => setShowWithdrawModal(true),
     },
     {
       icon: <Radio className="w-5 h-5 text-white sm:w-5.5 sm:h-5.5" />,
       label: 'AIRTIME',
       color: 'bg-[#26C6DA]',
+      onClick: () => setShowAirtimeModal(true),
     },
   ]
 
-  const financialServices = [
-    { name: 'ZIIDI TRADER', logo: 'https://via.placeholder.com/64?text=Ziidi+Trader' },
-    { name: 'ZIIDI INVEST & SAVE', logo: 'https://via.placeholder.com/64?text=Ziidi+Invest' },
-    { name: 'M-SHWARI', logo: 'https://via.placeholder.com/64?text=M-Shwari' },
-    { name: 'TUUNZA MAPATO', logo: 'https://via.placeholder.com/64?text=Tuunza+Mapato' },
-  ]
+ const financialServices = [
+  { name: 'ZIIDI TRADER',          logo: '/icons/ziidi-trader.jpg' },
+  { name: 'ZIIDI INVEST & SAVE',   logo: '/icons/ziidi-invest-save.jpg' },
+  { name: 'M-SHWARI',              logo: '/icons/m-shwari.jpg' },
+  { name: 'TUUNZA MAPATO',         logo: '/icons/tuunza-mapato.jpg' },
+];
 
-  // Added back: Global Payments (second card like Financial Services)
-  const globalPayments = [
-    { name: 'M-PESA VISA CARD', logo: 'https://via.placeholder.com/64?text=VISA' },
-    { name: 'INTERNATIONAL AIRTIME', logo: 'https://via.placeholder.com/64?text=AIRTIME' },
-    { name: 'PAYPAL', logo: 'https://via.placeholder.com/64?text=PAYPAL' },
-    { name: 'WU', logo: 'https://via.placeholder.com/64?text=WU' },
-  ]
+const globalPayments = [
+  { name: 'M-PESA VISA CARD',      logo: '/icons/mpesa-visa-card.jpg' },
+  { name: 'INTERNATIONAL AIRTIME', logo: '/icons/international-airtime.jpg' },
+  { name: 'PAYPAL',                logo: '/icons/paypal.jpg' },
+];
 
   const maskReference = (ref?: string) => {
     if (!ref) return '—'
@@ -282,7 +285,7 @@ useEffect(() => {
   return (
     <div
       ref={pageRef}
-      className="min-h-screen bg-black text-white overflow-y-auto pb-20 font-sans"
+      className="min-h-screen bg-black text-white overflow-y-auto pb-20 font-sans relative"
     >
       {/* FIXED HEADER */}
       <header
@@ -339,7 +342,7 @@ useEffect(() => {
         </div>
       </header>
 
-      {/* MAIN CONTENT - small space between header and balance card */}
+      {/* MAIN CONTENT */}
       <div className={`${isScrolled ? 'pt-14' : 'pt-20'}`}>
         {/* Balance Card */}
         <div className="px-4 pt-4 pb-4">
@@ -371,7 +374,7 @@ useEffect(() => {
               <button
                 key={index}
                 className="flex flex-col items-center gap-1 flex-1 max-w-[70px] active:scale-95 transition-transform duration-150"
-                onClick={() => console.log(`${action.label} clicked`)}
+                onClick={action.onClick}
               >
                 <div
                   className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md ${action.color}`}
@@ -440,7 +443,7 @@ useEffect(() => {
           </div>
         </section>
 
-        {/* Ad Banner */}
+        {/* Ad Banner – NOW IMAGE ONLY + DOTS KEPT */}
         <section className="px-4 mb-8">
           <div
             ref={scrollRef}
@@ -449,20 +452,21 @@ useEffect(() => {
             {ads.map((ad, i) => (
               <div
                 key={i}
-                className="min-w-full snap-center bg-gradient-to-r from-[#004D33] to-[#00A651] rounded-2xl p-4 text-white flex items-center gap-3 shadow-lg"
+                className="min-w-full snap-center rounded-2xl overflow-hidden shadow-lg"
               >
-                <div className="flex-1">
-                  <p className="text-base font-bold mb-1 leading-tight">{ad.title}</p>
-                  <button className="bg-white text-[#004D33] px-4 py-2 rounded-full text-xs font-semibold mt-2 shadow">
-                    {ad.buttonText}
-                  </button>
-                  <p className="text-[10px] mt-2 opacity-80">{ad.terms}</p>
-                </div>
-                <img src={ad.image} alt={ad.title} className="w-28 h-28 object-cover rounded-lg" />
+                <Image
+                  src={ad.image}
+                  alt="Banner"
+                  width={600}
+                  height={240}
+                  className="w-full h-auto object-cover"
+                  priority={i === 0} // load first faster
+                />
               </div>
             ))}
           </div>
 
+          {/* Dots kept exactly as before */}
           <div className="flex justify-center gap-2 mt-3">
             {ads.map((_, i) => (
               <button
@@ -485,45 +489,60 @@ useEffect(() => {
         </section>
 
         {/* Financial Services */}
-        <section className="px-4 mb-6">
-          <div className="bg-gray-900 rounded-xl p-4">
-            <div className="flex justify-between items-center mb-3">
-              <p className="text-sm font-semibold">Financial Services</p>
-              <p className="text-[#00A651] text-xs">View All</p>
-            </div>
-            <div className="grid grid-cols-4 gap-3">
-              {financialServices.map((service, i) => (
-                <div key={i} className="flex flex-col items-center gap-1">
-                  <div className="w-11 h-11 rounded-full overflow-hidden bg-white/10">
-                    <Image src={service.logo} alt={service.name} width={44} height={44} className="object-contain" />
-                  </div>
-                  <p className="text-[9px] text-center uppercase leading-tight">{service.name}</p>
-                </div>
-              ))}
-            </div>
+<section className="px-4 mb-6">
+  <div className="bg-gray-900 rounded-xl p-4">
+    <div className="flex justify-between items-center mb-3">
+      <p className="text-sm font-semibold">Financial Services</p>
+      <p className="text-[#00A651] text-xs">View All</p>
+    </div>
+    <div className="grid grid-cols-4 gap-3">
+      {financialServices.map((service, i) => (
+        <div key={i} className="flex flex-col items-center gap-1">
+          <div className="w-12 h-12 rounded-full overflow-hidden bg-white/5 flex items-center justify-center">
+            <Image
+              src={service.logo}
+              alt={`${service.name} logo`}
+              width={48}
+              height={48}
+              className="w-full h-full object-cover"  // ← changed to object-cover + full size
+            />
           </div>
-        </section>
+          <p className="text-[9px] text-center uppercase leading-tight mt-1">
+            {service.name}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
 
-        {/* Global Payments - added back as second card */}
-        <section className="px-4 mb-24">
-          <div className="bg-gray-900 rounded-xl p-4">
-            <div className="flex justify-between items-center mb-3">
-              <p className="text-sm font-semibold">Global Payments</p>
-              <p className="text-[#00A651] text-xs">View All</p>
-            </div>
-            <div className="grid grid-cols-4 gap-3">
-              {globalPayments.map((service, i) => (
-                <div key={i} className="flex flex-col items-center gap-1">
-                  <div className="w-11 h-11 rounded-full overflow-hidden bg-white/10">
-                    <Image src={service.logo} alt={service.name} width={44} height={44} className="object-contain" />
-                  </div>
-                  <p className="text-[9px] text-center uppercase leading-tight">{service.name}</p>
-                </div>
-              ))}
-            </div>
+{/* Global Payments */}
+<section className="px-4 mb-24">
+  <div className="bg-gray-900 rounded-xl p-4">
+    <div className="flex justify-between items-center mb-3">
+      <p className="text-sm font-semibold">Global Payments</p>
+      <p className="text-[#00A651] text-xs">View All</p>
+    </div>
+    <div className="grid grid-cols-4 gap-3">
+      {globalPayments.map((service, i) => (
+        <div key={i} className="flex flex-col items-center gap-1">
+          <div className="w-12 h-12 rounded-full overflow-hidden bg-white/5 flex items-center justify-center">
+            <Image
+              src={service.logo}
+              alt={`${service.name} logo`}
+              width={48}
+              height={48}
+              className="w-full h-full object-cover"  // ← changed to object-cover + full size
+            />
           </div>
-        </section>
-
+          <p className="text-[9px] text-center uppercase leading-tight mt-1">
+            {service.name}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
       </div>
 
       {/* Bottom Navigation */}
@@ -547,6 +566,183 @@ useEffect(() => {
           </button>
         </div>
       </nav>
+
+      {/* BOTTOM SHEETS */}
+      {/* Send and Request */}
+      {showSendModal && (
+        <div 
+          className="fixed inset-0 bg-black/40 flex items-end z-50"
+          onClick={() => setShowSendModal(false)}
+        >
+          <div 
+            className="bg-black w-full rounded-t-2xl p-6 max-h-[55vh] overflow-y-auto touch-pan-y"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-gray-600 rounded-full mx-auto mb-5 cursor-grab active:cursor-grabbing" />
+
+            <h2 className="text-xl font-bold mb-5">Send and Request</h2>
+
+            <div className="flex flex-col gap-3">
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
+                  <ArrowUpCircle className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Send Money</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
+                  <ArrowDownCircle className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Request Money</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-green-700 flex items-center justify-center">
+                  <Globe className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Global</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-green-700 flex items-center justify-center">
+                  <Scan className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Scan QR</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pay */}
+      {showPayModal && (
+        <div 
+          className="fixed inset-0 bg-black/40 flex items-end z-50"
+          onClick={() => setShowPayModal(false)}
+        >
+          <div 
+            className="bg-black w-full rounded-t-2xl p-6 max-h-[55vh] overflow-y-auto touch-pan-y"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-gray-600 rounded-full mx-auto mb-5 cursor-grab active:cursor-grabbing" />
+
+            <h2 className="text-xl font-bold mb-5">Pay</h2>
+
+            <div className="flex flex-col gap-3">
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                  <Building2 className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Pay Bill</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                  <ShoppingCart className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Buy Goods</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                  <HandCoins className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Pochi la Biashara</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                  <CreditCard className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Global Pay</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                  <Scan className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Scan QR</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Withdraw */}
+      {showWithdrawModal && (
+        <div 
+          className="fixed inset-0 bg-black/40 flex items-end z-50"
+          onClick={() => setShowWithdrawModal(false)}
+        >
+          <div 
+            className="bg-black w-full rounded-t-2xl p-6 max-h-[55vh] overflow-y-auto touch-pan-y"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-gray-600 rounded-full mx-auto mb-5 cursor-grab active:cursor-grabbing" />
+
+            <h2 className="text-xl font-bold mb-5">Withdraw</h2>
+
+            <div className="flex flex-col gap-3">
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center">
+                  <User className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Withdraw at Agent</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center">
+                  <CreditCard className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Withdraw at ATM</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center">
+                  <Scan className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Scan QR</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Airtime */}
+      {showAirtimeModal && (
+        <div 
+          className="fixed inset-0 bg-black/40 flex items-end z-50"
+          onClick={() => setShowAirtimeModal(false)}
+        >
+          <div 
+            className="bg-black w-full rounded-t-2xl p-6 max-h-[55vh] overflow-y-auto touch-pan-y"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-gray-600 rounded-full mx-auto mb-5 cursor-grab active:cursor-grabbing" />
+
+            <h2 className="text-xl font-bold mb-5">Airtime</h2>
+
+            <div className="flex flex-col gap-3">
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                  <Smartphone className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Buy for My Number</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                  <User className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Buy for Other Number</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                  <Radio className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Buy Bundles</span>
+              </button>
+              <button className="flex items-center gap-4 p-2.5 hover:bg-gray-900 rounded-lg transition">
+                <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                  <Globe className="w-6 h-6" />
+                </div>
+                <span className="text-base font-medium">Buy International Airtime</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
