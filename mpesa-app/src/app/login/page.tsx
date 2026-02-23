@@ -3,9 +3,8 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { Fingerprint } from "lucide-react";
+import { Fingerprint, Edit } from "lucide-react";
 
-// Main page component with Suspense wrapper
 export default function MpesaLoginPage() {
   return (
     <Suspense fallback={
@@ -18,16 +17,16 @@ export default function MpesaLoginPage() {
   );
 }
 
-// Inner content component that uses client hooks safely
 function LoginContent() {
   const [pin, setPin] = useState("");
   const [phone, setPhone] = useState("");
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const router = useRouter();
-  const searchParams = useSearchParams(); // now safe inside Suspense + client component
+  const searchParams = useSearchParams();
 
   const [userData, setUserData] = useState({
     name: "",
@@ -56,15 +55,19 @@ function LoginContent() {
             phone: parsed.phone || "",
             photo: parsed.photo || "",
           });
+          setPhone(parsed.phone?.replace(/\D/g, "") || "");
         } catch {
           localStorage.removeItem("mpesa_user_profile");
         }
       }
 
       const queryPhone = searchParams.get("phone");
-      if (queryPhone) {
-        const clean = queryPhone.replace(/\D/g, "");
-        setPhone(clean);
+      if (queryPhone && !phone) {
+        setPhone(queryPhone.replace(/\D/g, ""));
+      }
+
+      if (!phone) {
+        setIsEditingPhone(true);
       }
 
       setLoading(false);
@@ -93,12 +96,19 @@ function LoginContent() {
   };
 
   const handleLogin = async () => {
+    const cleanPhone = phone.replace(/\D/g, "");
+    if (!cleanPhone || cleanPhone.length < 9) {
+      setError("Please enter a valid phone number");
+      setIsEditingPhone(true);
+      return;
+    }
+
     setIsLoggingIn(true);
     setError("");
 
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/mpesa/login/`, {
-        phone_number: phone.replace(/\D/g, ""),
+        phone_number: cleanPhone,
         pin,
       });
 
@@ -107,7 +117,6 @@ function LoginContent() {
 
       await fetchProfile(access);
 
-      // Small delay to let user see the real name & photo
       await new Promise((r) => setTimeout(r, 900));
 
       router.push("/");
@@ -141,7 +150,6 @@ function LoginContent() {
     }
   };
 
-  // Generate initials (S, SC, AK, etc.)
   const getInitials = (fullName: string): string => {
     if (!fullName?.trim()) return "?";
     const names = fullName.trim().split(/\s+/).filter(Boolean);
@@ -160,8 +168,8 @@ function LoginContent() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 relative overflow-hidden">
-      <div className="flex flex-col items-center w-full max-w-sm sm:max-w-md md:max-w-lg flex-1 justify-center py-12 sm:py-16">
-        <div className="text-center mb-8 sm:mb-10 md:mb-12">
+      <div className="flex flex-col items-center w-full max-w-sm sm:max-w-md md:max-w-lg flex-1 justify-center py-10 sm:py-16">
+        <div className="text-center mb-8 sm:mb-10 md:mb-12 w-full">
           <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full overflow-hidden mx-auto mb-4 border-4 border-green-600/80 shadow-xl shadow-green-900/30 flex items-center justify-center bg-gray-800 relative">
             {userData.photo ? (
               <img
@@ -183,13 +191,39 @@ function LoginContent() {
             )}
           </div>
 
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 tracking-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 tracking-tight">
             {userData.name || "M-PESA"}
           </h1>
 
-          <p className="text-base sm:text-lg md:text-xl text-gray-400 font-medium">
-            {phone || "Enter your number"}
-          </p>
+          {/* Phone – centered, responsive, with visible placeholder */}
+          {!isEditingPhone ? (
+            <button
+              className="mt-1 flex items-center justify-center gap-1.5 mx-auto group cursor-pointer"
+              onClick={() => setIsEditingPhone(true)}
+            >
+              <p className="text-base sm:text-lg text-gray-400 font-medium text-center">
+                {phone || "XXXXXXXXX"}
+              </p>
+              <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+          ) : (
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "");
+                setPhone(val);
+                setError("");
+              }}
+              onBlur={() => {
+                if (phone.trim()) setIsEditingPhone(false);
+              }}
+              autoFocus
+              placeholder="254XXXXXXX"
+              className="mt-1 bg-transparent text-center text-base sm:text-lg text-white outline-none caret-green-500 w-40 sm:w-52 max-w-full placeholder-gray-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              maxLength={12}
+            />
+          )}
         </div>
 
         <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 tracking-wider uppercase text-gray-300">
@@ -215,7 +249,6 @@ function LoginContent() {
           </p>
         )}
 
-        {/* Keypad – 0 centered bottom, fingerprint bottom right */}
         <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 w-full max-w-[320px] sm:max-w-[380px] md:max-w-[440px]">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
             <button
@@ -228,8 +261,7 @@ function LoginContent() {
             </button>
           ))}
 
-          {/* Bottom row: spacer (left) – 0 (center) – fingerprint (right) */}
-          <div /> {/* empty left cell */}
+          <div />
 
           <button
             onClick={() => addDigit("0")}
