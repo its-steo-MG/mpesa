@@ -427,12 +427,23 @@ const globalPayments = [
                       {Math.abs(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </p>
                     <p className="text-[10px] text-gray-400">
-                      {new Date(tx.created_at).toLocaleString('en-US', {
-                        day: '2-digit',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      }) || '—'}
+                      {(() => {
+                        const date = new Date(tx.created_at);
+                        if (isNaN(date.getTime())) return '—';
+                    
+                        const datePart = date.toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: '2-digit',
+                        });
+                    
+                        const timePart = date.toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true,
+                        });
+                    
+                        return `${datePart}, ${timePart}`;
+                      })() || '—'}
                     </p>
                   </div>
                 </Link>
