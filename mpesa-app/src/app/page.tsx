@@ -353,13 +353,9 @@ const globalPayments = [
         <div className="px-4 pt-4 pb-4">
           <div className="bg-gray-900 rounded-xl p-3.5">
             <p className="text-center text-gray-400 text-[11px] mb-1.5">Balance</p>
-            
             <div className="flex items-center justify-center gap-2 mb-1.5">
               <p className="text-xl sm:text-2xl font-medium">
-                {showBalance 
-                  ? `KSh ${formattedBalance}` 
-                  : '••••••'
-                }
+                {showBalance ? `Ksh. ${formattedBalance}` : '••••••'}
               </p>
               <button
                 onClick={() => setShowBalance(!showBalance)}
@@ -368,11 +364,9 @@ const globalPayments = [
                 {showBalance ? <Eye className="w-4.5 h-4.5" /> : <EyeOff className="w-4.5 h-4.5" />}
               </button>
             </div>
-        
-            {/* Fuliza - Now properly formatted */}
-            {parseFloat(fuliza) > 0 && (
-              <p className="text-center text-cyan-400 text-[11px] font-medium">
-                Available FULIZA: KSh {formattedFuliza}
+            {fuliza !== '0.00' && (
+              <p className="text-center text-cyan-400 text-[11px]">
+                Available FULIZA: KSH {formattedFuliza}
               </p>
             )}
           </div>
