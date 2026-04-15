@@ -2,7 +2,7 @@ import './globals.css'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'M-Pesa App',
+  title: 'My OneApp',
   description: 'Mobile money made easy',
   manifest: '/manifest.json',
   themeColor: '#00A651',

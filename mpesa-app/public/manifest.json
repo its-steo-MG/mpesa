@@ -1,6 +1,6 @@
 {
-  "name": "M-PESA",
-  "short_name": "M-PESA",
+  "name": "My OneApp",
+  "short_name": "My OneApp",
   "description": "Send money, pay bills, withdraw cash - all in one app",
   "start_url": "/",
   "display": "standalone",

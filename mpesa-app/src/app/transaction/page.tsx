@@ -1,49 +1,30 @@
-// app/transactions/page.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Search } from 'lucide-react'
+import { Search, Settings } from 'lucide-react'
 import axios from 'axios'
-import Link from 'next/link'
 
 type Transaction = {
   id: number
   transaction_type: 'deposit' | 'withdrawal' | 'transfer'
-  amount: number
+  amount: string | number
   description: string
-  recipient_name: string
-  recipient_phone: string
-  reference: string
-  mpesa_id: string
+  recipient_name?: string
+  recipient_phone?: string
+  mpesa_id?: string
+  reference?: string
   created_at: string
-  category?: string
 }
-
-const avatarColors = [
-  '#6B7280', // gray
-  '#60A5FA', // soft blue
-  '#A78BFA', // soft violet
-  '#34D399', // soft emerald
-  '#FBBF24', // soft amber
-  '#F472B6', // soft pink
-  '#818CF8', // soft indigo
-  '#F87171', // soft red
-]
 
 export default function MpesaStatements() {
   const router = useRouter()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentMonth, setCurrentMonth] = useState('')
-  const [isScrolled, setIsScrolled] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
-    // Set dynamic month
-    const month = new Date().toLocaleString('en-US', { month: 'long' }).toUpperCase()
-    setCurrentMonth(month)
-
     const token = localStorage.getItem('mpesa_access_token')
     if (!token) {
       router.replace('/login')
@@ -74,177 +55,186 @@ export default function MpesaStatements() {
     }
 
     fetchTransactions()
-
-    // Scroll listener for export button
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 200)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
   }, [router])
 
+  // Group by date
   const grouped = transactions.reduce((acc: Record<string, Transaction[]>, tx) => {
-    const dateStr = new Date(tx.created_at).toLocaleDateString('en-US', {
+    const dateStr = new Date(tx.created_at).toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'long',
-      year: 'numeric',
-    }).toUpperCase()
-
-    acc[dateStr] = acc[dateStr] || []
+      year: 'numeric'
+    })
+    if (!acc[dateStr]) acc[dateStr] = []
     acc[dateStr].push(tx)
     return acc
   }, {})
 
   const getInitials = (name = '') => {
-    const cleaned = name.trim()
-    if (!cleaned) return '??'
-    const parts = cleaned.split(/\s+/)
+    if (!name) return '??'
+    const parts = name.trim().split(/\s+/)
     return (parts[0]?.[0] + (parts[1]?.[0] || '')).toUpperCase()
   }
 
-  const getAvatarColor = (str: string) => {
-    let hash = 0
-    for (let i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  const getAvatarColor = (name: string) => {
+    const key = name.slice(0, 2).toUpperCase()
+    const colors: Record<string, string> = {
+      'SB': '#C9A56E',
+      'KP': '#14B8A6',
+      'AK': '#9CA53F',
+      'MM': '#4ADE80',
+      'MF': '#A855F7',
+      'JM': '#4ADE80',
+      'AG': '#22C55E',
     }
-    return avatarColors[Math.abs(hash) % avatarColors.length]
+    return colors[key] || '#22C55E'
   }
 
-  const maskValue = (value = '') => {
-    if (!value) return '—'
-    const digits = value.replace(/\D/g, '')
-    if (digits.length < 9) return value
-    return digits.slice(0, 6) + '***' + digits.slice(-3)
+  const showPlainId = (value = '') => value || '—'
+
+  const formatAmount = (tx: Transaction) => {
+    const numAmount = typeof tx.amount === 'string' 
+      ? parseFloat(tx.amount) 
+      : tx.amount
+
+    const absAmount = Math.abs(numAmount).toFixed(1)
+    return tx.transaction_type === 'deposit' 
+      ? `+KSH ${absAmount}` 
+      : `-KSH ${absAmount}`
   }
 
-  const formatAmount = (amount: number, type: string) => {
-    const sign = type === 'deposit' ? '+' : '-'
-    const color = type === 'deposit' ? 'text' : 'text-white'
-    const num = Math.abs(amount).toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })
-    return { sign, color, num }
-  }
-
-  const formatTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString('en-US', {
-      hour: '2-digit',
+  const formatTime = (iso: string) => {
+    return new Date(iso).toLocaleTimeString('en-US', {
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: true,
-    }).toUpperCase()
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        Loading...
-      </div>
-    )
+      hour12: true
+    }).toLowerCase()
   }
 
-  if (error || Object.keys(grouped).length === 0) {
+  const handleTransactionClick = (id: number) => {
+    router.push(`/transaction/${id}`)
+  }
+
+  if (loading) return <div className="min-h-screen bg-[#0A0F0A] flex items-center justify-center text-white">Loading statements...</div>
+
+  if (error) {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center gap-4 p-6 text-center">
-        <p>{error || 'No transactions found'}</p>
-        <button onClick={() => router.back()} className="text-[#00C853] underline">
-          Go back
-        </button>
+      <div className="min-h-screen bg-[#0A0F0A] text-white flex flex-col items-center justify-center p-6">
+        <p className="text-red-500">{error}</p>
+        <button onClick={() => window.location.reload()} className="mt-4 text-[#00C853]">Try Again</button>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24 sm:pb-20 lg:pb-16">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-black border-b border-gray-800/50">
-        <div className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 max-w-3xl mx-auto">
-          <button onClick={() => router.back()} className="p-1 -ml-1">
-            <ArrowLeft size={20} />
+    <div className="min-h-screen bg-[#0A0F0A] text-white pb-28">
+      {/* Header with centered title and simple "<" back button */}
+      <header className="sticky top-0 z-50 bg-[#0A0F0A] border-b border-gray-800 px-4 py-4">
+        <div className="flex items-center">
+          {/* Simple "<" Back Button */}
+          <button 
+            onClick={() => router.back()} 
+            className="text-3xl font-light text-white pr-4 active:opacity-70"
+          >
+            ‹
           </button>
-          <h1 className="text-sm sm:text-base font-semibold tracking-tight">
-            M-PESA STATEMENTS
+
+          {/* Centered Title */}
+          <h1 className="flex-1 text-center text-lg font-semibold tracking-tight">
+            M-PESA Statements
           </h1>
-          <Search size={18} className="sm:size-5" />
+
+          {/* Spacer to balance layout */}
+          <div className="w-10" />
+        </div>
+
+        {/* Search Bar */}
+        <div className="mt-4 relative">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#00C853]">
+            <Search size={18} />
+          </div>
+          <input
+            type="text"
+            placeholder="Search transactions"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-zinc-900 border border-gray-700 rounded-2xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-[#00C853]"
+          />
+        </div>
+
+        {/* April Pill */}
+        <div className="mt-4">
+          <div className="inline-block bg-[#00C853] text-black font-semibold px-6 py-1.5 rounded-full text-sm">
+            April
+          </div>
         </div>
       </header>
 
-      {/* Month pill */}
-      <div className="flex justify-center py-3 sm:py-4">
-        <div className="bg-green-800/70 text-white font-semibold px-5 py-1.5 rounded-full text-xs sm:text-sm uppercase tracking-wide shadow-sm">
-          {currentMonth}
-        </div>
-      </div>
-
-      {/* Transactions */}
-      <div className="px-3 sm:px-4 lg:px-6 space-y-6 sm:space-y-7 max-w-3xl mx-auto">
+      {/* Transactions List - Tight Spacing */}
+      <div className="px-4 pt-6 space-y-6">
         {Object.entries(grouped).map(([date, txs]) => (
-          <section key={date}>
-            <h2 className="text-xs sm:text-sm text-gray-400 font-medium mb-2.5 sm:mb-3">
-              {date}
-            </h2>
-
-            <div className="space-y-4 sm:space-y-5">
+          <div key={date}>
+            <h2 className="text-xl font-semibold mb-4 tracking-tight">{date}</h2>
+            
+            <div className="space-y-0.5">
               {txs.map((tx) => {
-                const { sign, color, num } = formatAmount(tx.amount, tx.transaction_type)
-                const name = (tx.recipient_name || tx.description || 'Unknown').toUpperCase()
-                const refOrPhone = tx.recipient_phone || tx.mpesa_id || tx.reference || ''
-                const bgColor = getAvatarColor(name)
+                const name = tx.recipient_name || tx.description || 'Unknown'
+                const avatarColor = getAvatarColor(name)
 
                 return (
-                  <Link
+                  <div
                     key={tx.id}
-                    href={`/transaction/${tx.id}`}
-                    className="flex items-start gap-3 active:opacity-80 transition-opacity"
+                    onClick={() => handleTransactionClick(tx.id)}
+                    className="flex items-start gap-3 cursor-pointer active:bg-zinc-900/60 rounded-2xl p-1.5 -mx-2 transition-colors hover:bg-zinc-900/30"
                   >
+                    {/* Avatar */}
                     <div
-                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 text-white"
-                      style={{ backgroundColor: bgColor }}
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0 mt-0.5"
+                      style={{ backgroundColor: avatarColor }}
                     >
                       {getInitials(name)}
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <p className="text-xs sm:text-[13.5px] font-medium leading-tight whitespace-nowrap overflow-hidden text-ellipsis">
-                          {name}
-                        </p>
-                        <p className={`text-xs sm:text-[13.5px] font-medium whitespace-nowrap ${color} flex-shrink-0`}>
-                          {sign} KSH. {num}
-                        </p>
-                      </div>
-
-                      <div className="flex justify-between items-baseline text-[10px] sm:text-[11px] text-gray-400 mt-0.5">
-                        <p className="whitespace-nowrap overflow-hidden text-ellipsis max-w-[70%]">
-                          {maskValue(refOrPhone)}
-                        </p>
-                        <p className="whitespace-nowrap">
-                          {formatTime(tx.created_at)}
-                        </p>
-                      </div>
+                    {/* Details */}
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <p className="text-[14px] font-medium truncate text-white">
+                        {name}
+                      </p>
+                      <p className="text-[11px] text-gray-400 mt-0.5 font-mono tracking-wider">
+                        {showPlainId(tx.recipient_phone || tx.mpesa_id || tx.reference)}
+                      </p>
                     </div>
-                  </Link>
+
+                    {/* Amount & Time - All white */}
+                    <div className="text-right shrink-0 pt-0.5">
+                      <p className="text-[14px] font-semibold text-white">
+                        {formatAmount(tx)}
+                      </p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">
+                        {formatTime(tx.created_at)}
+                      </p>
+                    </div>
+                  </div>
                 )
               })}
             </div>
-          </section>
+          </div>
         ))}
+
+        {transactions.length === 0 && (
+          <p className="text-center text-gray-400 py-10">No transactions yet</p>
+        )}
       </div>
 
-      {/* Export button with animation */}
-    <div className="fixed bottom-5 sm:bottom-6 right-3 sm:right-5 z-20 pointer-events-none">
-      <button
-        className={`pointer-events-auto flex items-center gap-2 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.5)] active:scale-95 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-gray-700/95 text-white px-6 py-3 text-sm backdrop-blur-md border border-gray-600/60'
-            : 'bg-gray-700/90 text-white p-3.5 w-12 h-12 justify-center backdrop-blur-md border border-gray-600/50'
-        }`}
-        onClick={() => alert('Export coming soon')}
-      >
-        <span className="text-xl">📄</span>
-        {isScrolled && <span className="font-semibold">EXPORT STATEMENTS</span>}
-      </button>
-    </div>
+      {/* Floating Button */}
+      <div className="fixed bottom-6 right-4 z-50">
+        <button
+          onClick={() => alert('Statement Options - Coming Soon')}
+          className="flex items-center gap-2 bg-zinc-900 border border-gray-700 hover:border-gray-600 active:scale-95 transition-all rounded-full px-5 py-3 shadow-2xl"
+        >
+          <Settings size={17} className="text-[#00C853]" />
+          <span className="text-[#00C853] font-medium text-sm">Statement Options</span>
+        </button>
+      </div>
     </div>
   )
 }

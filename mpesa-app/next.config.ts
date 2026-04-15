@@ -1,4 +1,4 @@
-// next.config.js
+// next.config.ts
 const withPWA = require('next-pwa')({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
@@ -12,25 +12,32 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      // Keep your existing patterns
+      // S3 buckets
       {
         protocol: 'https',
         hostname: 'grandview-storage.s3.amazonaws.com',
-        port: '',
-        pathname: '/mpesa_avatars/**',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'grandview-storage.s3.eu-north-1.amazonaws.com',
-        port: '',
         pathname: '/**',
       },
-      // ... others
-      { protocol: 'https', hostname: 'via.placeholder.com', pathname: '/**' },
+      // Local backend during development
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',           // ← Change if your backend runs on different port
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8000',
+        pathname: '/**',
+      },
     ],
-
-    // ← ADD THIS (most important line)
-    unoptimized: true,   // Disables Next.js Image optimization entirely → no upstream fetch, no private IP error
+    unoptimized: true,   // Keep this for now (recommended while testing S3 + localhost)
   },
 };
 

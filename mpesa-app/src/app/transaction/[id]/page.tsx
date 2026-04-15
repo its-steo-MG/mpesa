@@ -2,13 +2,25 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, Copy } from 'lucide-react'
+import { Copy, Star, RotateCw, Download, Share2 } from 'lucide-react'
 import axios from 'axios'
+
+type Transaction = {
+  id: number
+  transaction_type: 'deposit' | 'withdrawal' | 'transfer'
+  amount: string | number
+  description: string
+  recipient_name?: string
+  recipient_phone?: string
+  mpesa_id?: string
+  reference?: string
+  created_at: string
+}
 
 export default function TransactionDetail() {
   const router = useRouter()
   const { id } = useParams()
-  const [transaction, setTransaction] = useState<any>(null)
+  const [transaction, setTransaction] = useState<Transaction | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -22,13 +34,14 @@ export default function TransactionDetail() {
     const fetchTransaction = async () => {
       try {
         setLoading(true)
-        setError(null)
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/mpesa/transactions/${id}/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/mpesa/transactions/${id}/`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
         setTransaction(res.data)
       } catch (err: any) {
-        console.error('Fetch failed:', err)
         if (err.response?.status === 401) {
           localStorage.removeItem('mpesa_access_token')
           router.replace('/login')
@@ -46,113 +59,174 @@ export default function TransactionDetail() {
   }, [id, router])
 
   if (loading) {
-    return <div className="min-h-screen bg-black text-white flex items-center justify-center">Loading...</div>
+    return (
+      <div className="min-h-screen bg-[#0A0F0A] text-white flex items-center justify-center">
+        Loading...
+      </div>
+    )
   }
 
   if (error || !transaction) {
-    return <div className="min-h-screen bg-black text-white flex items-center justify-center">{error || 'No data'}</div>
+    return (
+      <div className="min-h-screen bg-[#0A0F0A] text-white flex items-center justify-center p-6">
+        {error || 'Transaction not found'}
+      </div>
+    )
   }
 
-  const formattedDate = new Date(transaction.created_at).toLocaleString('en-US', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  }).toUpperCase().replace(',', '')
+  // Safe amount conversion
+  const numAmount = typeof transaction.amount === 'string'
+    ? parseFloat(transaction.amount)
+    : transaction.amount
 
-  const getInitials = (name: string) => {
-    return name.split(' ').map(word => word.charAt(0).toUpperCase()).join('').slice(0, 2)
-  }
+  const absAmount = Math.abs(numAmount).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
 
-  const maskPhone = (phone: string) => {
-    if (!phone) return '—'
-    const cleaned = phone.replace(/\D/g, '')
-    if (cleaned.length < 10) return phone
-    return cleaned.slice(0, 6) + '*' + cleaned.slice(-3)  // Matches image: 254757*237
-  }
+  const isDeposit = transaction.transaction_type === 'deposit'
+  const sign = isDeposit ? '+' : '-'
 
-  const getCategoryLabel = (cat: string) => {
-    const choices: { [key: string]: string } = {
-      family_friends: 'FAMILY AND FRIENDS',
-      business: 'BUSINESS',
-      other: 'OTHER',
-    }
-    return choices[cat] || '—'
+  const date = new Date(transaction.created_at)
+  const formattedDate = `${date.getDate()}th ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()} | ${date
+    .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+    .toLowerCase()}`
+
+  const getInitials = (name: string = '') => {
+    if (!name) return 'ST'
+    return name
+      .split(' ')
+      .map((w) => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase()
   }
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(transaction.mpesa_id || '')
-      .then(() => alert('M-Pesa ID copied to clipboard!'))
-      .catch(() => alert('Failed to copy M-Pesa ID.'))
+    if (transaction.mpesa_id) {
+      navigator.clipboard.writeText(transaction.mpesa_id)
+      alert('Transaction ID copied!')
+    }
   }
 
-  const isDeposit = transaction.transaction_type === 'deposit'
-  const isWithdrawal = transaction.transaction_type === 'withdrawal'
-  const isBusinessToCustomer = isDeposit && transaction.category === 'business'
-  const isCustomerToBusiness = isWithdrawal
-  const transactionTypeLabel = isBusinessToCustomer 
-    ? 'BUSINESS TO CUSTOMER' 
-    : (isCustomerToBusiness 
-      ? 'CUSTOMER TO BUSINESS' 
-      : (isDeposit ? 'DEPOSIT' : transaction.transaction_type.toUpperCase()))
-
-  const lowerLabel = isBusinessToCustomer || isCustomerToBusiness ? 'PAY BILL NUMBER' : 'PHONE NUMBER'
-  const lowerValue = isBusinessToCustomer || isCustomerToBusiness
-    ? (transaction.recipient_phone || '—') 
-    : maskPhone(transaction.recipient_phone)
-
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
-      {/* Top Bar - Matches image */}
-      <div className="flex items-center px-4 py-3">
-        <button onClick={() => router.back()} className="text-white">
-          <ArrowLeft className="w-6 h-6" />
+    <div className="min-h-screen bg-[#0A0F0A] text-white flex flex-col">
+      {/* Top Bar - Updated X Button with Red + Green Lines */}
+      <div className="flex items-center justify-between px-5 py-5">
+        <button 
+          onClick={() => router.back()} 
+          className="relative w-8 h-8 flex items-center justify-center active:opacity-70"
+        >
+          {/* Two-tone X: Red and Green lines */}
+          <div className="relative w-7 h-7">
+            <div className="absolute w-7 h-[3px] bg-red-500 rotate-45 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded" />
+            <div className="absolute w-7 h-[3px] bg-[#00C853] -rotate-45 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded" />
+          </div>
         </button>
-        <p className="flex-1 text-center text-sm uppercase">{formattedDate}</p>
+
+        <p className="text-sm text-gray-300 tracking-wide">{formattedDate}</p>
+        <div className="w-8" />
       </div>
 
-      {/* Main Card - Centered vertically and horizontally */}
-      <div className="flex-1 flex items-center justify-center px-6">
-        <div className="bg-gray-800/80 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-          {/* Type Pill */}
-          <div className="bg-gray-700/50 rounded-full px-4 py-1.5 mb-6 text-center text-sm font-medium uppercase">
-            {transactionTypeLabel}
-          </div>
-
-          {/* Avatar */}
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-2xl font-bold text-gray-600">
-              {getInitials(transaction.recipient_name || transaction.description || 'TX')}
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center px-4 pb-8">
+        <div className="w-full max-w-md">
+          <div className="relative">
+            {/* Avatar */}
+            <div className="flex justify-center absolute left-1/2 -translate-x-1/2 -top-11 z-20">
+              <div className="w-[92px] h-[92px] bg-[#2563EB] rounded-full flex items-center justify-center border-[8px] border-[#0A0F0A] shadow-2xl">
+                <span className="text-white text-4xl font-bold tracking-widest">
+                  {getInitials(transaction.recipient_name || transaction.description)}
+                </span>
+              </div>
             </div>
 
-            {/* Name - reduced size to fit one line */}
-            <p className="text-lg font-medium uppercase text-center">
-              {transaction.recipient_name || 'Unknown Recipient'}
-            </p>
+            {/* Main Card */}
+            <div className="bg-[#181A18] rounded-3xl border border-gray-800 overflow-hidden pt-14">
+              {/* Green Top Line */}
+              <div className="h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent absolute top-0 left-0 right-0 z-10" />
 
-            {/* Amount - reduced size to fit one line */}
-            <p className={`text-xl font-medium ${isDeposit ? 'text-[]' : 'text-white-500'}`}>
-              {isDeposit ? '+' : '-'} KSH. {Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </p>
+              <div className="px-6 pb-9">
+                {/* Merchant Customer Payment */}
+                <div className="flex justify-center mb-5">
+                  <div className="bg-[#272A27] text-white text-xs font-medium px-6 py-1.5 rounded-full border border-gray-700">
+                    Merchant Customer Payment
+                  </div>
+                </div>
 
-            {/* ID with Copy */}
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-1 text-[#00A651] text-sm font-bold"
-            >
-              ID: {transaction.mpesa_id || '—'}
-              <Copy className="w-4 h-4" />
-            </button>
+                {/* Business Name */}
+                <p className="text-center text-[17px] font-semibold tracking-wider text-white mb-2">
+                  {transaction.recipient_name || 'SASHITRENDY TECHNOLOGIES'}
+                </p>
 
-            {/* Conditional Lower Field */}
-            <p className="text-xs text-gray-400 uppercase mt-6">{lowerLabel}</p>
-            <p className="text-sm font-medium">
-              {lowerValue}
-            </p>
+                {/* Amount - Always WHITE */}
+                <p className="text-center text-[31px] font-semibold mb-9 text-white">
+                  {sign}KSH.{absAmount}
+                </p>
+
+                {/* Number */}
+                <div className="mb-6">
+                  <p className="text-xs text-gray-400 mb-1">Number</p>
+                  <p className="text-[17px] font-medium tracking-wider text-white">
+                    {transaction.recipient_phone || '5515738'}
+                  </p>
+                </div>
+
+                {/* Separator Line */}
+                <div className="h-px bg-gray-700 mb-6" />
+
+                {/* Transaction ID + Copy Button */}
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Transaction ID</p>
+                  <div className="flex items-center gap-3">
+                    <p className="font-mono text-[17px] tracking-widest text-white">
+                      {transaction.mpesa_id || 'UDF7P18A9C'}
+                    </p>
+                    <button
+                      onClick={handleCopy}
+                      className="flex items-center gap-1.5 bg-[#272A27] hover:bg-[#323532] px-4 py-2 rounded-2xl text-sm text-white transition-colors"
+                    >
+                      <Copy size={16} />
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="grid grid-cols-4 gap-4 mt-10 px-1">
+            {[
+              { icon: Star, color: 'text-yellow-400', label: 'Add to\nfavourites' },
+              { icon: RotateCw, color: 'text-emerald-400', label: 'Reverse\ntransaction' },
+              { icon: Download, color: 'text-emerald-400', label: 'Download\nreceipt' },
+              { icon: Share2, color: 'text-emerald-400', label: 'Share\ndetails' },
+            ].map((item, i) => (
+              <button
+                key={i}
+                className="flex flex-col items-center gap-2 active:scale-95 transition-transform"
+              >
+                <div className="w-12 h-12 bg-[#272A27] rounded-2xl flex items-center justify-center border border-gray-800">
+                  <item.icon size={24} className={item.color} />
+                </div>
+                <span className="text-[10px] text-gray-400 text-center leading-tight whitespace-pre">
+                  {item.label}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
+      </div>
+
+      {/* Done Button */}
+      <div className="px-5 pb-8">
+        <button
+          onClick={() => router.back()}
+          className="w-full bg-[#00C853] text-black font-semibold text-lg py-4 rounded-2xl active:scale-[0.98] transition-all"
+        >
+          Done
+        </button>
       </div>
     </div>
   )
