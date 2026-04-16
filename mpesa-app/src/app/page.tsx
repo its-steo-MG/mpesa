@@ -40,11 +40,10 @@ export default function Home() {
       return names[0][0].toUpperCase()
     }
     
-    // First name + Last name initials
     return (names[0][0] + names[names.length - 1][0]).toUpperCase()
   }
 
-  // Dynamic avatar background color based on first letter
+  // Dynamic avatar background color
   const getAvatarColor = (name: string): string => {
     const firstLetter = name.trim().charAt(0).toUpperCase()
     const colors: Record<string, string> = {
@@ -56,7 +55,7 @@ export default function Home() {
       'U': '#3B82F6', 'V': '#6366F1', 'W': '#8B5CF6', 'X': '#A855F7',
       'Y': '#D946EF', 'Z': '#EC4899',
     }
-    return colors[firstLetter] || '#10B981' // Default green
+    return colors[firstLetter] || '#10B981'
   }
 
   // Scroll listener
@@ -149,12 +148,10 @@ export default function Home() {
   const formattedBalance = formatCurrency(balance)
   const formattedFuliza = formatCurrency(fuliza)
 
-  // Computed values
   const displayName = getFirstName(userName)
   const initials = getInitials(userName)
   const avatarBgColor = getAvatarColor(userName)
 
-  // Quick Actions
   const quickActions = [
     { icon: "/icons/send-money.png", label: "Send Money", w: 68, h: 68 },
     { icon: "/icons/lipa-na-mpesa.png", label: "Lipa na\nM-PESA", w: 52, h: 52 },
@@ -192,7 +189,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#0A0F0A] text-white relative">
-      {/* Sticky Header */}
+      {/* Sticky Header - Smaller Name */}
       <header className="sticky top-0 z-50 bg-[#0A0F0A] border-b border-gray-800/70 backdrop-blur-md px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="relative w-10 h-10">
@@ -208,7 +205,6 @@ export default function Home() {
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement
                     target.style.display = 'none'
-                    
                     const parent = target.parentElement
                     if (parent) {
                       parent.innerHTML = `
@@ -232,7 +228,7 @@ export default function Home() {
 
           <div>
             <p className="text-sm text-gray-400">{greeting},</p>
-            <p className="font-semibold text-lg flex items-center gap-1">
+            <p className="font-semibold text-base"> {/* Reduced from text-lg */}
               {displayName} 👋
             </p>
           </div>
@@ -248,14 +244,17 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Rest of your page remains the same */}
+      {/* Main Scrollable Area */}
       <div ref={mainContainerRef} className="h-[calc(100vh-73px)] overflow-y-auto pb-32 px-4 pt-5 space-y-5">
-        {/* Balance Cards */}
+        
+        {/* Balance Cards - Smaller Amount Font */}
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar scroll-smooth">
           <div className="min-w-[92%] snap-center bg-zinc-900/95 backdrop-blur rounded-3xl p-5 border-l-4 border-[#00C853] flex-shrink-0">
             <p className="text-[#00C853] text-sm font-medium">M-PESA Balance</p>
             <div className="flex items-center gap-2 mt-3">
-              <p className="text-3xl font-semibold tracking-tighter">Ksh {showBalance ? formattedBalance : '••••••'}</p>
+              <p className="text-2xl font-semibold tracking-tighter"> {/* Reduced from text-3xl */}
+                Ksh {showBalance ? formattedBalance : '••••••'}
+              </p>
               <button onClick={() => setShowBalance(!showBalance)} className="text-gray-400">
                 {showBalance ? <EyeOff size={22} /> : <Eye size={22} />}
               </button>
