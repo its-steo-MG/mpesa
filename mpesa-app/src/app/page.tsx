@@ -33,13 +33,8 @@ export default function Home() {
 
   const getInitials = (fullName: string): string => {
     if (!fullName?.trim()) return 'MP'
-    
     const names = fullName.trim().split(/\s+/).filter(Boolean)
-    
-    if (names.length === 1) {
-      return names[0][0].toUpperCase()
-    }
-    
+    if (names.length === 1) return names[0][0].toUpperCase()
     return (names[0][0] + names[names.length - 1][0]).toUpperCase()
   }
 
@@ -228,7 +223,7 @@ export default function Home() {
 
           <div>
             <p className="text-sm text-gray-400">{greeting},</p>
-            <p className="font-semibold text-base"> {/* Reduced from text-lg */}
+            <p className="font-semibold text-base"> {/* Further reduced */}
               {displayName} 👋
             </p>
           </div>
@@ -252,7 +247,7 @@ export default function Home() {
           <div className="min-w-[92%] snap-center bg-zinc-900/95 backdrop-blur rounded-3xl p-5 border-l-4 border-[#00C853] flex-shrink-0">
             <p className="text-[#00C853] text-sm font-medium">M-PESA Balance</p>
             <div className="flex items-center gap-2 mt-3">
-              <p className="text-2xl font-semibold tracking-tighter"> {/* Reduced from text-3xl */}
+              <p className="text-[22px] font-semibold tracking-tighter"> {/* Further reduced */}
                 Ksh {showBalance ? formattedBalance : '••••••'}
               </p>
               <button onClick={() => setShowBalance(!showBalance)} className="text-gray-400">
@@ -270,11 +265,11 @@ export default function Home() {
             <div className="flex justify-between mt-6">
               <div>
                 <p className="text-xs text-gray-400">Airtime</p>
-                <p className="text-2xl font-semibold">Ksh {airtimeBalance}</p>
+                <p className="text-xl font-semibold">Ksh {airtimeBalance}</p>
               </div>
               <div className="text-right">
                 <p className="text-xs text-gray-400">Data</p>
-                <p className="text-2xl font-semibold text-gray-400">--</p>
+                <p className="text-xl font-semibold text-gray-400">--</p>
               </div>
             </div>
             <Link href="#" className="mt-6 block text-center border border-[#00C853] text-[#00C853] py-3 rounded-2xl text-sm font-medium hover:bg-[#00C853]/10">
@@ -286,7 +281,7 @@ export default function Home() {
         {/* Quick Actions */}
         <div className="bg-zinc-900/95 backdrop-blur rounded-3xl p-6">
           <div className="flex justify-between items-center mb-5">
-            <p className="font-semibold text-lg">Quick Actions</p>
+            <p className="font-semibold text-[17px]">Quick Actions</p>
             <p className="text-[#00C853] text-sm flex items-center gap-1 cursor-pointer">View all <ArrowRight size={18} /></p>
           </div>
           
@@ -319,7 +314,7 @@ export default function Home() {
             onClick={() => setIsFrequentsOpen(!isFrequentsOpen)}
             className="w-full flex justify-between items-center px-6 py-4 text-left"
           >
-            <p className="font-semibold text-lg">Frequents</p>
+            <p className="font-semibold text-[17px]">Frequents</p>
             <span className={`text-[#00C853] text-3xl transition-transform ${isFrequentsOpen ? 'rotate-180' : ''}`}>⌄</span>
           </button>
 
@@ -355,7 +350,7 @@ export default function Home() {
         {/* Explore & Discover Deals */}
         <div>
           <div className="flex items-center gap-2 mb-3 px-1">
-            <p className="font-semibold text-lg">Explore &amp; Discover Deals</p>
+            <p className="font-semibold text-[17px]">Explore &amp; Discover Deals</p>
             <span className="text-xl">🔥</span>
           </div>
           
@@ -375,7 +370,7 @@ export default function Home() {
         {/* My Finances */}
         <div className="bg-zinc-900/95 backdrop-blur rounded-3xl p-6">
           <div className="flex justify-between items-center mb-5">
-            <p className="font-semibold text-lg">My Finances</p>
+            <p className="font-semibold text-[17px]">My Finances</p>
             <p className="text-[#00C853] text-sm flex items-center gap-1 cursor-pointer">View all <ArrowRight size={18} /></p>
           </div>
 
