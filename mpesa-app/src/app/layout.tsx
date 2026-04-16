@@ -1,15 +1,19 @@
+// app/layout.tsx
 import './globals.css'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'My OneApp',
-  description: 'Mobile money made easy',
+  description: 'Send money, pay bills, withdraw cash - all in one app',
   manifest: '/manifest.json',
-  themeColor: '#00A651',
+  
+  // Change this to a neutral/dark color so the status bar looks normal
+  themeColor: '#000000',        // or '#0a0a0a' to match your dark background
+  
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   icons: {
-    icon: '/mpesa%20icon.webp',
-    apple: '/mpesa%20icon.webp',
+    icon: '/mpesa icon.webp',
+    apple: '/mpesa icon.webp',
   },
 }
 

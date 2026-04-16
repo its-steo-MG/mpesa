@@ -36,9 +36,7 @@ export default function TransactionDetail() {
         setLoading(true)
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/mpesa/transactions/${id}/`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         )
         setTransaction(res.data)
       } catch (err: any) {
@@ -74,7 +72,6 @@ export default function TransactionDetail() {
     )
   }
 
-  // Safe amount conversion
   const numAmount = typeof transaction.amount === 'string'
     ? parseFloat(transaction.amount)
     : transaction.amount
@@ -111,42 +108,45 @@ export default function TransactionDetail() {
 
   return (
     <div className="min-h-screen bg-[#0A0F0A] text-white flex flex-col">
-      {/* Top Bar - Updated X Button with Red + Green Lines */}
-      <div className="flex items-center justify-between px-5 py-5">
+      {/* Top Bar */}
+      <div className="flex items-center justify-between px-4 py-5">
         <button 
           onClick={() => router.back()} 
           className="relative w-8 h-8 flex items-center justify-center active:opacity-70"
         >
-          {/* Two-tone X: Red and Green lines */}
           <div className="relative w-7 h-7">
             <div className="absolute w-7 h-[3px] bg-red-500 rotate-45 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded" />
             <div className="absolute w-7 h-[3px] bg-[#00C853] -rotate-45 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded" />
           </div>
         </button>
 
-        <p className="text-sm text-gray-300 tracking-wide">{formattedDate}</p>
+        <p className="text-sm text-gray-300 tracking-wide text-center flex-1 px-2 line-clamp-1">
+          {formattedDate}
+        </p>
+
         <div className="w-8" />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center px-4 pb-8">
-        <div className="w-full max-w-md">
+      {/* Centered Main Content */}
+      <div className="flex-1 flex items-center justify-center px-4 pb-12">
+        <div className="w-full max-w-md mx-auto">
           <div className="relative">
-            {/* Avatar */}
-            <div className="flex justify-center absolute left-1/2 -translate-x-1/2 -top-11 z-20">
-              <div className="w-[92px] h-[92px] bg-[#2563EB] rounded-full flex items-center justify-center border-[8px] border-[#0A0F0A] shadow-2xl">
-                <span className="text-white text-4xl font-bold tracking-widest">
+            {/* Circular Avatar */}
+            <div className="flex justify-center -mb-11 sm:-mb-12 z-20 relative">
+              <div className="w-20 h-20 sm:w-[92px] sm:h-[92px] bg-[#2563EB] rounded-full flex items-center justify-center border-[7px] sm:border-[8px] border-[#0A0F0A] shadow-2xl">
+                <span className="text-white text-[34px] sm:text-4xl font-bold tracking-widest">
                   {getInitials(transaction.recipient_name || transaction.description)}
                 </span>
               </div>
             </div>
 
-            {/* Main Card */}
-            <div className="bg-[#181A18] rounded-3xl border border-gray-800 overflow-hidden pt-14">
-              {/* Green Top Line */}
+            {/* Main Card - Green line fixed at the top */}
+            <div className="bg-[#181A18] rounded-3xl border border-gray-800 overflow-hidden relative">
+              
+              {/* Green Top Line - Now properly at the very top edge */}
               <div className="h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent absolute top-0 left-0 right-0 z-10" />
 
-              <div className="px-6 pb-9">
+              <div className="px-5 sm:px-6 pb-9 pt-8">
                 {/* Merchant Customer Payment */}
                 <div className="flex justify-center mb-5">
                   <div className="bg-[#272A27] text-white text-xs font-medium px-6 py-1.5 rounded-full border border-gray-700">
@@ -159,8 +159,8 @@ export default function TransactionDetail() {
                   {transaction.recipient_name || 'SASHITRENDY TECHNOLOGIES'}
                 </p>
 
-                {/* Amount - Always WHITE */}
-                <p className="text-center text-[31px] font-semibold mb-9 text-white">
+                {/* Amount */}
+                <p className="text-center text-[28px] sm:text-[31px] font-semibold mb-9 text-white">
                   {sign}KSH.{absAmount}
                 </p>
 
@@ -179,12 +179,12 @@ export default function TransactionDetail() {
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Transaction ID</p>
                   <div className="flex items-center gap-3">
-                    <p className="font-mono text-[17px] tracking-widest text-white">
+                    <p className="font-mono text-[16px] sm:text-[17px] tracking-widest text-white break-all">
                       {transaction.mpesa_id || 'UDF7P18A9C'}
                     </p>
                     <button
                       onClick={handleCopy}
-                      className="flex items-center gap-1.5 bg-[#272A27] hover:bg-[#323532] px-4 py-2 rounded-2xl text-sm text-white transition-colors"
+                      className="flex items-center gap-1.5 bg-[#272A27] hover:bg-[#323532] px-4 py-2 rounded-2xl text-sm text-white transition-colors flex-shrink-0"
                     >
                       <Copy size={16} />
                       Copy
@@ -196,7 +196,7 @@ export default function TransactionDetail() {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-4 gap-4 mt-10 px-1">
+          <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-10 px-1">
             {[
               { icon: Star, color: 'text-yellow-400', label: 'Add to\nfavourites' },
               { icon: RotateCw, color: 'text-emerald-400', label: 'Reverse\ntransaction' },
@@ -207,8 +207,8 @@ export default function TransactionDetail() {
                 key={i}
                 className="flex flex-col items-center gap-2 active:scale-95 transition-transform"
               >
-                <div className="w-12 h-12 bg-[#272A27] rounded-2xl flex items-center justify-center border border-gray-800">
-                  <item.icon size={24} className={item.color} />
+                <div className="w-11 h-11 sm:w-12 sm:h-12 bg-[#272A27] rounded-2xl flex items-center justify-center border border-gray-800">
+                  <item.icon size={22} className={item.color} />
                 </div>
                 <span className="text-[10px] text-gray-400 text-center leading-tight whitespace-pre">
                   {item.label}
