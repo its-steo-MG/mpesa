@@ -184,7 +184,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#0A0F0A] text-white relative">
-      {/* Sticky Header - Smaller Name */}
+      {/* Sticky Header */}
       <header className="sticky top-0 z-50 bg-[#0A0F0A] border-b border-gray-800/70 backdrop-blur-md px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="relative w-10 h-10">
@@ -223,7 +223,7 @@ export default function Home() {
 
           <div>
             <p className="text-sm text-gray-400">{greeting},</p>
-            <p className="font-semibold text-base"> {/* Further reduced */}
+            <p className="font-semibold text-base">
               {displayName} 👋
             </p>
           </div>
@@ -242,27 +242,27 @@ export default function Home() {
       {/* Main Scrollable Area */}
       <div ref={mainContainerRef} className="h-[calc(100vh-73px)] overflow-y-auto pb-32 px-4 pt-5 space-y-5">
         
-        {/* Balance Cards - Smaller Amount Font */}
+        {/* Balance Cards - Reduced Height & Padding */}
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar scroll-smooth">
-          <div className="min-w-[92%] snap-center bg-zinc-900/95 backdrop-blur rounded-3xl p-5 border-l-4 border-[#00C853] flex-shrink-0">
+          <div className="min-w-[92%] snap-center bg-zinc-900/95 backdrop-blur rounded-3xl p-4 border-l-4 border-[#00C853] flex-shrink-0"> {/* Reduced padding */}
             <p className="text-[#00C853] text-sm font-medium">M-PESA Balance</p>
-            <div className="flex items-center gap-2 mt-3">
-              <p className="text-[22px] font-semibold tracking-tighter"> {/* Further reduced */}
+            <div className="flex items-center gap-2 mt-2"> {/* Reduced margin */}
+              <p className="text-[22px] font-bold tracking-tighter">
                 Ksh {showBalance ? formattedBalance : '••••••'}
               </p>
               <button onClick={() => setShowBalance(!showBalance)} className="text-gray-400">
-                {showBalance ? <EyeOff size={22} /> : <Eye size={22} />}
+                {showBalance ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
             <p className="text-xs text-gray-400 mt-1">Available Fuliza: KSh {formattedFuliza}</p>
-            <Link href="/transaction" className="mt-5 block text-center border border-[#00C853] text-[#00C853] py-3 rounded-2xl text-sm font-medium hover:bg-[#00C853]/10">
+            <Link href="/transaction" className="mt-4 block text-center border border-[#00C853] text-[#00C853] py-2.5 rounded-2xl text-sm font-medium hover:bg-[#00C853]/10"> {/* Reduced button padding */}
               View statements
             </Link>
           </div>
 
-          <div className="min-w-[92%] snap-center bg-zinc-900/95 backdrop-blur rounded-3xl p-5 border-l-4 border-[#00C853] flex-shrink-0">
+          <div className="min-w-[92%] snap-center bg-zinc-900/95 backdrop-blur rounded-3xl p-4 border-l-4 border-[#00C853] flex-shrink-0"> {/* Reduced padding */}
             <p className="text-[#00C853] text-sm font-medium">My Balance</p>
-            <div className="flex justify-between mt-6">
+            <div className="flex justify-between mt-4"> {/* Reduced margin */}
               <div>
                 <p className="text-xs text-gray-400">Airtime</p>
                 <p className="text-xl font-semibold">Ksh {airtimeBalance}</p>
@@ -272,7 +272,7 @@ export default function Home() {
                 <p className="text-xl font-semibold text-gray-400">--</p>
               </div>
             </div>
-            <Link href="#" className="mt-6 block text-center border border-[#00C853] text-[#00C853] py-3 rounded-2xl text-sm font-medium hover:bg-[#00C853]/10">
+            <Link href="#" className="mt-5 block text-center border border-[#00C853] text-[#00C853] py-2.5 rounded-2xl text-sm font-medium hover:bg-[#00C853]/10">
               View All Balances
             </Link>
           </div>
