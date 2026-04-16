@@ -33,18 +33,46 @@ function LoginContent() {
     photo: "",
   });
 
+  // Fetch profile with better error handling
+  const fetchProfile = async (token: string) => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/mpesa/profile/`, {
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 8000,
+      });
+
+      const p = res.data;
+
+      const profile = {
+        name: p.real_name?.trim() || "M-PESA User",
+        phone: p.phone_number || phone || "",
+        photo: p.profile_photo || "",
+      };
+
+      // Save to localStorage for persistence
+      localStorage.setItem("mpesa_user_profile", JSON.stringify(profile));
+      setUserData(profile);
+
+      return profile;
+    } catch (err) {
+      console.error("Profile fetch failed:", err);
+      // Don't throw - we still want to proceed with login
+      return null;
+    }
+  };
+
   useEffect(() => {
     const initialize = async () => {
       const token = localStorage.getItem("mpesa_access_token");
 
       if (token) {
-        try {
-          await fetchProfile(token);
-        } catch {}
+        // If already logged in, fetch latest profile and go to home
+        await fetchProfile(token);
         router.replace("/");
         return;
       }
 
+      // Load saved profile from localStorage
       const stored = localStorage.getItem("mpesa_user_profile");
       if (stored) {
         try {
@@ -60,6 +88,7 @@ function LoginContent() {
         }
       }
 
+      // Check for phone in URL query params
       const queryPhone = searchParams.get("phone");
       if (queryPhone && !phone) {
         setPhone(queryPhone.replace(/\D/g, ""));
@@ -75,6 +104,7 @@ function LoginContent() {
     initialize();
   }, [searchParams, router]);
 
+  // Auto-login when PIN reaches 4 digits
   useEffect(() => {
     if (pin.length === 4 && !isLoggingIn && phone && !loading) {
       handleLogin();
@@ -114,9 +144,11 @@ function LoginContent() {
       const { access } = res.data;
       localStorage.setItem("mpesa_access_token", access);
 
+      // Fetch fresh profile after successful login
       await fetchProfile(access);
 
-      await new Promise((r) => setTimeout(r, 900));
+      // Small delay for smooth transition
+      await new Promise((r) => setTimeout(r, 800));
 
       router.push("/");
     } catch (err: any) {
@@ -125,27 +157,6 @@ function LoginContent() {
       setPin("");
     } finally {
       setIsLoggingIn(false);
-    }
-  };
-
-  const fetchProfile = async (token: string) => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/mpesa/profile/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const p = res.data;
-
-      const profile = {
-        name: p.real_name?.trim() || "User",
-        phone: p.phone_number || phone || "",
-        photo: p.profile_photo || "",
-      };
-
-      localStorage.setItem("mpesa_user_profile", JSON.stringify(profile));
-      setUserData(profile);
-    } catch (err) {
-      console.error("Profile fetch failed:", err);
     }
   };
 
@@ -188,10 +199,15 @@ function LoginContent() {
                 alt={userData.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
+                  // Fallback to initials if image fails to load
                   e.currentTarget.style.display = "none";
                   const parent = e.currentTarget.parentElement;
                   if (parent) {
-                    parent.innerHTML = `<span class="text-5xl font-bold text-white flex items-center justify-center h-full">${getInitials(userData.name)}</span>`;
+                    parent.innerHTML = `
+                      <div class="w-full h-full flex items-center justify-center text-5xl font-bold text-white bg-gray-800">
+                        ${getInitials(userData.name)}
+                      </div>
+                    `;
                   }
                 }}
               />
@@ -268,7 +284,6 @@ function LoginContent() {
             </button>
           ))}
 
-          {/* Fingerprint / Cancel area */}
           <button
             onClick={deleteDigit}
             disabled={isLoggingIn || pin.length === 0}
@@ -285,7 +300,6 @@ function LoginContent() {
             0
           </button>
 
-          {/* Green Delete Button (matching image) */}
           <button
             onClick={deleteDigit}
             disabled={isLoggingIn || pin.length === 0}

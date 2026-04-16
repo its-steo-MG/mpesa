@@ -12,8 +12,8 @@ export const metadata: Metadata = {
   
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   icons: {
-    icon: '/mpesa icon.webp',
-    apple: '/mpesa icon.webp',
+    icon: '/mpesa-icon.png',
+    apple: '/mpesa-icon.png',
   },
 }
 

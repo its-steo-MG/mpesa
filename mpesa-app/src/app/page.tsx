@@ -25,6 +25,25 @@ export default function Home() {
   const [isFrequentsOpen, setIsFrequentsOpen] = useState(true)
   const [isScanExpanded, setIsScanExpanded] = useState(true)
 
+  // Helper functions
+  const getFirstName = (fullName: string): string => {
+    if (!fullName?.trim()) return 'User'
+    return fullName.trim().split(/\s+/)[0]
+  }
+
+  const getInitials = (fullName: string): string => {
+    if (!fullName?.trim()) return 'MP'
+    
+    const names = fullName.trim().split(/\s+/).filter(Boolean)
+    
+    if (names.length === 1) {
+      return names[0][0].toUpperCase()
+    }
+    
+    // First name + Last name initials
+    return (names[0][0] + names[names.length - 1][0]).toUpperCase()
+  }
+
   // Scroll listener
   useEffect(() => {
     const handleScroll = () => {
@@ -114,7 +133,10 @@ export default function Home() {
 
   const formattedBalance = formatCurrency(balance)
   const formattedFuliza = formatCurrency(fuliza)
-  const firstLetter = userName.charAt(0).toUpperCase()
+
+  // Computed values for display
+  const displayName = getFirstName(userName)
+  const initials = getInitials(userName)
 
   // Quick Actions
   const quickActions = [
@@ -165,12 +187,22 @@ export default function Home() {
                   alt={userName}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = 'none'
+                    const target = e.currentTarget as HTMLImageElement
+                    target.style.display = 'none'
+                    
+                    const parent = target.parentElement
+                    if (parent) {
+                      parent.innerHTML = `
+                        <div class="w-full h-full bg-[#00C853] flex items-center justify-center text-2xl font-bold text-black">
+                          ${initials}
+                        </div>
+                      `
+                    }
                   }}
                 />
               ) : (
                 <div className="w-full h-full bg-[#00C853] flex items-center justify-center text-2xl font-bold text-black">
-                  {firstLetter}
+                  {initials}
                 </div>
               )}
             </div>
@@ -182,7 +214,7 @@ export default function Home() {
           <div>
             <p className="text-sm text-gray-400">{greeting},</p>
             <p className="font-semibold text-lg flex items-center gap-1">
-              {userName} 👋
+              {displayName} 👋
             </p>
           </div>
         </div>
@@ -234,14 +266,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Quick Actions - Tighter spacing */}
+        {/* Quick Actions */}
         <div className="bg-zinc-900/95 backdrop-blur rounded-3xl p-6">
           <div className="flex justify-between items-center mb-5">
             <p className="font-semibold text-lg">Quick Actions</p>
             <p className="text-[#00C853] text-sm flex items-center gap-1 cursor-pointer">View all <ArrowRight size={18} /></p>
           </div>
           
-          <div className="grid grid-cols-4 gap-x-5 gap-y-5">   {/* Reduced gap between rows */}
+          <div className="grid grid-cols-4 gap-x-5 gap-y-5">
             {quickActions.map((item, index) => (
               <button 
                 key={index} 

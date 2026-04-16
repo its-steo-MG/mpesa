@@ -1,4 +1,4 @@
-// next.config.ts
+// next.config.ts  ← For your separate M-Pesa PWA app
 const withPWA = require('next-pwa')({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
@@ -12,7 +12,7 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      // S3 buckets
+      // Main S3 bucket - allow ALL paths (this covers robots, mpesa_avatars, etc.)
       {
         protocol: 'https',
         hostname: 'grandview-storage.s3.amazonaws.com',
@@ -23,11 +23,12 @@ const nextConfig = {
         hostname: 'grandview-storage.s3.eu-north-1.amazonaws.com',
         pathname: '/**',
       },
+
       // Local backend during development
       {
         protocol: 'http',
         hostname: 'localhost',
-        port: '8000',           // ← Change if your backend runs on different port
+        port: '8000',
         pathname: '/**',
       },
       {
@@ -37,7 +38,7 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
-    unoptimized: true,   // Keep this for now (recommended while testing S3 + localhost)
+    unoptimized: true,   // Keep this while testing S3
   },
 };
 
