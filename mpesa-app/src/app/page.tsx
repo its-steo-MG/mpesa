@@ -44,6 +44,21 @@ export default function Home() {
     return (names[0][0] + names[names.length - 1][0]).toUpperCase()
   }
 
+  // Dynamic avatar background color based on first letter
+  const getAvatarColor = (name: string): string => {
+    const firstLetter = name.trim().charAt(0).toUpperCase()
+    const colors: Record<string, string> = {
+      'A': '#10B981', 'B': '#14B8A6', 'C': '#06B6D4', 'D': '#0EA5E9',
+      'E': '#3B82F6', 'F': '#6366F1', 'G': '#8B5CF6', 'H': '#A855F7',
+      'I': '#D946EF', 'J': '#EC4899', 'K': '#F43F5E', 'L': '#F97316',
+      'M': '#F59E0B', 'N': '#EAB308', 'O': '#84CC16', 'P': '#22C55E',
+      'Q': '#10B981', 'R': '#14B8A6', 'S': '#06B6D4', 'T': '#0EA5E9',
+      'U': '#3B82F6', 'V': '#6366F1', 'W': '#8B5CF6', 'X': '#A855F7',
+      'Y': '#D946EF', 'Z': '#EC4899',
+    }
+    return colors[firstLetter] || '#10B981' // Default green
+  }
+
   // Scroll listener
   useEffect(() => {
     const handleScroll = () => {
@@ -134,9 +149,10 @@ export default function Home() {
   const formattedBalance = formatCurrency(balance)
   const formattedFuliza = formatCurrency(fuliza)
 
-  // Computed values for display
+  // Computed values
   const displayName = getFirstName(userName)
   const initials = getInitials(userName)
+  const avatarBgColor = getAvatarColor(userName)
 
   // Quick Actions
   const quickActions = [
@@ -180,7 +196,10 @@ export default function Home() {
       <header className="sticky top-0 z-50 bg-[#0A0F0A] border-b border-gray-800/70 backdrop-blur-md px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="relative w-10 h-10">
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#00C853]/30 bg-zinc-800">
+            <div 
+              className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#00C853]/30 bg-zinc-800 flex items-center justify-center"
+              style={{ backgroundColor: avatarBgColor }}
+            >
               {userPhoto ? (
                 <img
                   src={userPhoto}
@@ -193,7 +212,7 @@ export default function Home() {
                     const parent = target.parentElement
                     if (parent) {
                       parent.innerHTML = `
-                        <div class="w-full h-full bg-[#00C853] flex items-center justify-center text-2xl font-bold text-black">
+                        <div class="w-full h-full flex items-center justify-center text-xl font-bold text-black">
                           ${initials}
                         </div>
                       `
@@ -201,7 +220,7 @@ export default function Home() {
                   }}
                 />
               ) : (
-                <div className="w-full h-full bg-[#00C853] flex items-center justify-center text-2xl font-bold text-black">
+                <div className="w-full h-full flex items-center justify-center text-xl font-bold text-black">
                   {initials}
                 </div>
               )}
@@ -229,9 +248,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Scrollable Area */}
+      {/* Rest of your page remains the same */}
       <div ref={mainContainerRef} className="h-[calc(100vh-73px)] overflow-y-auto pb-32 px-4 pt-5 space-y-5">
-        
         {/* Balance Cards */}
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar scroll-smooth">
           <div className="min-w-[92%] snap-center bg-zinc-900/95 backdrop-blur rounded-3xl p-5 border-l-4 border-[#00C853] flex-shrink-0">
