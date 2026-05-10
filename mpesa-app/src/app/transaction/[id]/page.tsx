@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Copy, Star, RotateCw, Download, Share2 } from 'lucide-react'
 import axios from 'axios'
+import { generateFakeMpesaReceipt } from '@/lib/mpesa-utils'   // ← Added
 
 type Transaction = {
   id: number
@@ -72,6 +73,9 @@ export default function TransactionDetail() {
     )
   }
 
+  // Use real mpesa_id from backend, otherwise generate the same deterministic ID as Wallet frontend
+  const mpesaId = transaction.mpesa_id || generateFakeMpesaReceipt(transaction)
+
   const numAmount = typeof transaction.amount === 'string'
     ? parseFloat(transaction.amount)
     : transaction.amount
@@ -100,10 +104,8 @@ export default function TransactionDetail() {
   }
 
   const handleCopy = () => {
-    if (transaction.mpesa_id) {
-      navigator.clipboard.writeText(transaction.mpesa_id)
-      alert('Transaction ID copied!')
-    }
+    navigator.clipboard.writeText(mpesaId)
+    alert('Transaction ID copied!')
   }
 
   return (
@@ -140,10 +142,8 @@ export default function TransactionDetail() {
               </div>
             </div>
 
-            {/* Main Card - Green line fixed at the top */}
+            {/* Main Card */}
             <div className="bg-[#181A18] rounded-3xl border border-gray-800 overflow-hidden relative">
-              
-              {/* Green Top Line - Now properly at the very top edge */}
               <div className="h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent absolute top-0 left-0 right-0 z-10" />
 
               <div className="px-5 sm:px-6 pb-9 pt-8">
@@ -180,7 +180,7 @@ export default function TransactionDetail() {
                   <p className="text-xs text-gray-400 mb-1">Transaction ID</p>
                   <div className="flex items-center gap-3">
                     <p className="font-mono text-[16px] sm:text-[17px] tracking-widest text-white break-all">
-                      {transaction.mpesa_id || 'UDF7P18A9C'}
+                      {mpesaId}
                     </p>
                     <button
                       onClick={handleCopy}
