@@ -248,7 +248,7 @@ export default function Home() {
               <div className="bg-zinc-900/99 backdrop-blur rounded-3xl p-4 h-full">
                 <p className="text-[#00C853] text-sm font-medium">M-PESA Balance</p>
                 <div className="flex items-center gap-3 mt-3">
-                  <p className="text-[22px] font-medium tracking-tighter">
+                  <p className="text-[22px] font-bold tracking-tighter">
                     Ksh {showBalance ? formattedBalance : '••••••'}
                   </p>
                   <button onClick={() => setShowBalance(!showBalance)} className="text-gray-400">
