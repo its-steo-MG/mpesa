@@ -244,11 +244,11 @@ export default function Home() {
         
         {/* Balance Cards */}
           <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar scroll-smooth">
-            <div className="min-w-[92%] snap-center rounded-3xl bg-gradient-to-b from-[#00C853] to-[#00B0FF] pl-1 flex-shrink-0">
+            <div className="min-w-[93%] snap-center rounded-3xl bg-gradient-to-b from-[#00C953] to-[#00B0FF] pl-1 flex-shrink-0">
               <div className="bg-zinc-900/99 backdrop-blur rounded-3xl p-4 h-full">
                 <p className="text-[#00C853] text-sm font-medium">M-PESA Balance</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <p className="text-[20px] font-medium tracking-tighter">
+                <div className="flex items-center gap-3 mt-3">
+                  <p className="text-[22px] font-medium tracking-tighter">
                     Ksh {showBalance ? formattedBalance : '••••••'}
                   </p>
                   <button onClick={() => setShowBalance(!showBalance)} className="text-gray-400">
@@ -263,7 +263,7 @@ export default function Home() {
             </div>
           
             <div className="min-w-[92%] snap-center rounded-3xl bg-gradient-to-b from-[#00C853] to-[#00B0FF] pl-1 flex-shrink-0">
-              <div className="bg-zinc-900/95 backdrop-blur rounded-3xl p-4 h-full">
+              <div className="bg-zinc-900/99 backdrop-blur rounded-3xl p-4 h-full">
                 <p className="text-[#00C853] text-sm font-medium">My Balance</p>
                 <div className="flex justify-between mt-4">
                   <div>
