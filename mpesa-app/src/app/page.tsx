@@ -242,41 +242,46 @@ export default function Home() {
       {/* Main Scrollable Area */}
       <div ref={mainContainerRef} className="h-[calc(100vh-73px)] overflow-y-auto pb-32 px-4 pt-5 space-y-5">
         
-        {/* Balance Cards - Reduced Height & Padding */}
-        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar scroll-smooth">
-          <div className="min-w-[92%] snap-center bg-zinc-900/95 backdrop-blur rounded-3xl p-4 border-l-4 border-[#00C853] flex-shrink-0"> {/* Reduced padding */}
-            <p className="text-[#00C853] text-sm font-medium">M-PESA Balance</p>
-            <div className="flex items-center gap-2 mt-2"> {/* Reduced margin */}
-              <p className="text-[22px] font-bold tracking-tighter">
-                Ksh {showBalance ? formattedBalance : '••••••'}
-              </p>
-              <button onClick={() => setShowBalance(!showBalance)} className="text-gray-400">
-                {showBalance ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+        {/* Balance Cards */}
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar scroll-smooth">
+            <div className="min-w-[92%] snap-center rounded-3xl bg-gradient-to-b from-[#00C853] to-[#00B0FF] pl-1 flex-shrink-0">
+              <div className="bg-zinc-900/99 backdrop-blur rounded-3xl p-4 h-full">
+                <p className="text-[#00C853] text-sm font-medium">M-PESA Balance</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <p className="text-[20px] font-medium tracking-tighter">
+                    Ksh {showBalance ? formattedBalance : '••••••'}
+                  </p>
+                  <button onClick={() => setShowBalance(!showBalance)} className="text-gray-400">
+                    {showBalance ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Available Fuliza: KSh {formattedFuliza}</p>
+                <Link href="/transaction" className="mt-4 block text-center border border-[#00C853] text-[#00C853] py-2.5 rounded-2xl text-sm font-medium hover:bg-[#00C853]/10">
+                  View statements
+                </Link>
+              </div>
             </div>
-            <p className="text-xs text-gray-400 mt-1">Available Fuliza: KSh {formattedFuliza}</p>
-            <Link href="/transaction" className="mt-4 block text-center border border-[#00C853] text-[#00C853] py-2.5 rounded-2xl text-sm font-medium hover:bg-[#00C853]/10"> {/* Reduced button padding */}
-              View statements
-            </Link>
+          
+            <div className="min-w-[92%] snap-center rounded-3xl bg-gradient-to-b from-[#00C853] to-[#00B0FF] pl-1 flex-shrink-0">
+              <div className="bg-zinc-900/95 backdrop-blur rounded-3xl p-4 h-full">
+                <p className="text-[#00C853] text-sm font-medium">My Balance</p>
+                <div className="flex justify-between mt-4">
+                  <div>
+                    <p className="text-xs text-gray-400">Airtime</p>
+                    <p className="text-xl font-semibold">Ksh {airtimeBalance}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-400">Data</p>
+                    <p className="text-xl font-semibold text-gray-400">--</p>
+                  </div>
+                </div>
+                <Link href="#" className="mt-5 block text-center border border-[#00C853] text-[#00C853] py-2.5 rounded-2xl text-sm font-medium hover:bg-[#00C853]/10">
+                  View All Balances
+                </Link>
+              </div>
+            </div>
           </div>
 
-          <div className="min-w-[92%] snap-center bg-zinc-900/95 backdrop-blur rounded-3xl p-4 border-l-4 border-[#00C853] flex-shrink-0"> {/* Reduced padding */}
-            <p className="text-[#00C853] text-sm font-medium">My Balance</p>
-            <div className="flex justify-between mt-4"> {/* Reduced margin */}
-              <div>
-                <p className="text-xs text-gray-400">Airtime</p>
-                <p className="text-xl font-semibold">Ksh {airtimeBalance}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-gray-400">Data</p>
-                <p className="text-xl font-semibold text-gray-400">--</p>
-              </div>
-            </div>
-            <Link href="#" className="mt-5 block text-center border border-[#00C853] text-[#00C853] py-2.5 rounded-2xl text-sm font-medium hover:bg-[#00C853]/10">
-              View All Balances
-            </Link>
-          </div>
-        </div>
 
         {/* Quick Actions */}
         <div className="bg-zinc-900/95 backdrop-blur rounded-3xl p-6">

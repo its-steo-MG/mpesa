@@ -161,12 +161,12 @@ export default function MpesaStatements() {
           />
         </div>
 
-        {/* April Pill */}
-        <div className="mt-4">
-          <div className="inline-block bg-[#00C853] text-black font-semibold px-6 py-1.5 rounded-full text-sm">
-            April
+        {/* Dynamic Current Month Pill */}
+          <div className="mt-4">
+            <div className="inline-block bg-[#00C853] text-black font-semibold px-6 py-1.5 rounded-full text-sm">
+              {new Date().toLocaleString('default', { month: 'long' })}
+            </div>
           </div>
-        </div>
       </header>
 
       {/* Transactions List - Tight Spacing */}
