@@ -415,7 +415,7 @@ if (loading) {
             </button>
           </div>
           <p className="text-[11px] text-gray-400 mt-1">
-            Available Fuliza: KSh {formatKsh(fuliza)}
+            Available Fuliza: Ksh {formatKsh(fuliza)}
           </p>
           <button
             onClick={() => navigate({ to: "/statements" })}
