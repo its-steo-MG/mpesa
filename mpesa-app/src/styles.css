@@ -1,0 +1,329 @@
+@import "tailwindcss" ;
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-mpesa-green: var(--mpesa-green);
+  --color-mpesa-green-bright: var(--mpesa-green-bright);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-danger: var(--danger);
+
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-scale-in: scale-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-slide-up: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-down: slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-pop-in: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-banner-in: banner-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-success-ring: success-ring 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-key-press: key-press 0.15s ease-out;
+  --animate-spinner: spinner 0.9s linear infinite;
+}
+
+:root {
+  --radius: 0.75rem;
+  --mpesa-green: oklch(0.74 0.21 145);
+  --mpesa-green-bright: oklch(0.82 0.22 145);
+  --background: oklch(0 0 0);
+  --surface: oklch(0.18 0 0);
+  --surface-2: oklch(0.22 0 0);
+  --surface-3: oklch(0.26 0 0);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0.10 0 0);
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0.14 0 0);
+  --popover-foreground: oklch(1 0 0);
+  --primary: oklch(0.74 0.21 145);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.18 0 0);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.65 0.01 280);
+  --accent: oklch(0.22 0 0);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.65 0.24 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.74 0.21 145);
+  --danger: oklch(0.65 0.24 25);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+    -webkit-tap-highlight-color: transparent;
+  }
+  html, body {
+    background: #000;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter",
+      "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+  body { min-height: 100vh; }
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.3); }
+  60% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes banner-in {
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes success-ring {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes key-press {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.92); background: #2A2A2A; }
+  100% { transform: scale(1); }
+}
+@keyframes spinner {
+  to { transform: rotate(360deg); }
+}
+@keyframes pin-fill {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes faceid-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+/* ---------- Components ---------- */
+
+/* Balance card with rainbow-style left edge (blue→green) */
+.balance-card {
+  position: relative;
+  background: #161616;
+  border-radius: 22px;
+  overflow: hidden;
+  isolation: isolate;
+}
+.balance-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 18px; bottom: 18px;
+  width: 4px;
+  background: linear-gradient(180deg, #2E7CF6 0%, #00C853 55%, #1DE76C 100%);
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  z-index: 2;
+}
+.balance-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 80% 20%, rgba(0,200,83,0.06), transparent 45%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 18px),
+    repeating-linear-gradient(45deg, rgba(0,200,83,0.025) 0 1px, transparent 1px 26px);
+  pointer-events: none;
+  z-index: 1;
+}
+.balance-card > * { position: relative; z-index: 3; }
+
+.airtime-card::before {
+  background: linear-gradient(180deg, #2E7CF6 0%, #00C853 100%);
+}
+
+/* Card with gradient line across the TOP edge only (transaction/success cards).
+   The avatar circle sits centered over the line and naturally masks the middle. */
+.ring-card {
+  position: relative;
+  background: #141414;
+  border-radius: 22px;
+  isolation: isolate;
+}
+.ring-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #2E7CF6 0%, #1DE76C 100%);
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  z-index: 0;
+}
+.ring-card-inner {
+  position: relative;
+  z-index: 1;
+}
+/* Soft waves texture on send-money confirm card */
+.wave-bg {
+  background-image:
+    radial-gradient(ellipse 120% 60% at 50% 0%, rgba(0,200,83,0.10), transparent 60%),
+    radial-gradient(ellipse 100% 50% at 20% 80%, rgba(0,200,83,0.06), transparent 60%);
+}
+
+/* Ghost (outlined green) button */
+.ghost-btn {
+  border: 1px solid #00C853;
+  color: #00C853;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  background: transparent;
+  width: 100%;
+  text-align: center;
+  transition: background 0.15s, transform 0.1s;
+}
+.ghost-btn:active { background: rgba(0, 200, 83, 0.1); transform: scale(0.98); }
+
+/* Solid green action (Send / Done) */
+.solid-green {
+  background: #00C853;
+  color: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  font-weight: 600;
+  font-size: 16px;
+  width: 100%;
+  text-align: center;
+  transition: transform 0.1s, background 0.15s;
+}
+.solid-green:hover { background: #00B84A; }
+.solid-green:active { transform: scale(0.98); }
+.solid-green:disabled { opacity: 0.6; }
+
+/* Quick action circle icon */
+.quick-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #2A2A2A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00C853;
+  transition: transform 0.15s, background 0.15s;
+}
+.quick-icon:active { transform: scale(0.92); background: #333; }
+
+/* Tab pill (Mobile number / Pochi, Apps/Send/Pay/Bundles) */
+.tab-pill {
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  color: #BFBFBF;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-pill.active {
+  background: #00C853;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Keypad key */
+.keypad-key {
+  background: transparent;
+  border-radius: 12px;
+  padding: 18px 0;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 300;
+  color: #fff;
+  user-select: none;
+  transition: background 0.12s, transform 0.08s;
+}
+.keypad-key:active {
+  background: #1F1F1F;
+  transform: scale(0.95);
+}
+
+/* iOS-style notification banner */
+.notif-banner {
+  background: rgba(40, 40, 40, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 18px;
+  padding: 12px 14px;
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Spinner */
+.spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,0.15);
+  border-top-color: #00C853;
+  animation: spinner 0.9s linear infinite;
+}
+
+/* Page transitions */
+.page-enter { animation: fade-in 0.25s ease-out; }
+.page-slide { animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Hide scrollbars */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Phone frame (constrain to phone width on desktop) */
+.phone-shell {
+  width: 100%;
+  max-width: 440px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+}
