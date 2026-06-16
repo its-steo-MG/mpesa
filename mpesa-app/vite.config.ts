@@ -1,5 +1,6 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
+import { nitro } from "nitro/vite";   // ← Changed to named import
 
 export default defineConfig({
   tanstackStart: {
@@ -8,6 +9,8 @@ export default defineConfig({
 
   vite: {
     plugins: [
+      nitro(),   // ← Nitro plugin for Vercel / SSR
+
       VitePWA({
         registerType: "autoUpdate",
         injectRegister: "auto",
@@ -60,8 +63,6 @@ export default defineConfig({
         workbox: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,webp}"],
 
-          // Removed the problematic globIgnores block that was causing the warning
-
           runtimeCaching: [
             {
               urlPattern: ({ url }) => url.pathname.startsWith("/api/"),
@@ -96,7 +97,7 @@ export default defineConfig({
         devOptions: {
           enabled: true,
           type: "module",
-          suppressWarnings: true,        // ← This fixes the dev warning
+          suppressWarnings: true,
           navigateFallback: "index.html",
         },
       }),
