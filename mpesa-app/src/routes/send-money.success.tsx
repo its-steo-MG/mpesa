@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { X, Copy, Star, RotateCw, Download, Share2 } from "lucide-react";
+import { X, Copy, Star, RotateCw, FileText, CalendarClock, Share2 } from "lucide-react";
 import { getInitials, getAvatarColor, formatKsh } from "@/lib/mpesa-utils";
 import { getTx, type Tx } from "@/lib/mpesa-store";
 import { z } from "zod";
@@ -51,7 +51,7 @@ function Success() {
   }, [id]);
 
   if (!tx) {
-    return <div className="phone-shell flex items-center justify-center text-gray-500">Loading...</div>;
+    return <div className="phone-shell flex items-center justify-center app-sub">Loading...</div>;
   }
 
   const display = tx.recipient_name || "Recipient";
@@ -68,50 +68,80 @@ function Success() {
   );
 
   return (
-    <div className="phone-shell text-white flex flex-col min-h-screen page-enter">
-      <div className="flex items-center px-4 pt-3 pb-2">
-        <button onClick={() => navigate({ to: "/" })} className="w-9 h-9 rounded-full bg-[#1A1A1A] flex items-center justify-center">
-          <X size={18} className="text-red-500" />
+    <div className="phone-shell app-text flex flex-col min-h-screen page-enter">
+      <div className="flex items-center justify-between px-5 pt-4 pb-2">
+        <button
+          onClick={() => navigate({ to: "/" })}
+          className="w-10 h-10 rounded-full app-card flex items-center justify-center"
+        >
+          <X size={18} className="text-[#E60012]" />
+        </button>
+        <button className="w-10 h-10 rounded-full app-card flex items-center justify-center">
+          <Share2 size={18} className="text-[#E60012]" />
         </button>
       </div>
 
-      <div className="flex-1 px-4 mt-8">
-        <div className="relative ring-card pt-10 pb-6 px-5" style={{ animation: "slide-up 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
+      <div className="flex-1 px-5 mt-14">
+        <div className="relative" style={{ animation: "slide-up 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
           <div
-            className="absolute -top-9 left-1/2 -translate-x-1/2 w-[72px] h-[72px] rounded-full bg-black border-2 border-[#1A1A1A] flex items-center justify-center text-4xl z-10"
+            className="absolute -top-[34px] left-1/2 -translate-x-1/2 w-[72px] h-[72px] rounded-full app-surface border flex items-center justify-center text-3xl z-30 app-line"
             style={{ animation: showCheck ? "pop-in 0.55s cubic-bezier(0.34,1.56,0.64,1)" : "none" }}
           >
             🎉
           </div>
 
-          <div className="ring-card-inner pt-8 text-center">
-            <div className="font-semibold text-lg leading-tight">Your transaction was<br />successful</div>
-            <div className="mt-3 text-sm text-gray-400">{dateStr} | {timeStr}</div>
-            
-            <div className="mt-5 text-3xl font-bold">Ksh {formatKsh(tx.amount)}</div>
-
-            {/* Transaction Cost - Now shows real fee */}
-            <div className="mt-2 text-sm text-gray-300">
-              Transaction cost: <span className="font-semibold">Ksh {formatKsh(feeAmount)}</span>
-            </div>
-
-            <div className="inline-flex items-center gap-2 mt-3 bg-[#1F1F1F] rounded-lg px-3 py-1.5">
-              <span className="text-sm text-gray-400">ID: <span className="text-[#00C853] font-semibold">{tx.mpesa_id}</span></span>
-              <button onClick={() => navigator.clipboard.writeText(tx.mpesa_id)} className="text-red-500 flex items-center gap-1 text-sm">
-                <Copy size={14} /> <span className="text-[#00C853]">Copy</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-5 bg-[#1F1F1F] rounded-xl p-4">
-            <div className="text-sm text-gray-400">Sent to:</div>
-            <div className="flex items-center gap-3 mt-2">
-              <div className="w-12 h-12 rounded-full flex items-center justify-center font-semibold" style={{ background: `${getAvatarColor(display)}33`, color: getAvatarColor(display) }}>
-                {getInitials(display)}
+          <div className="ring-card px-5 pt-14 pb-6">
+            <div className="text-center">
+              <div className="font-semibold text-[19px] leading-snug">
+                Your transaction was
+                <br />
+                successful
               </div>
-              <div>
-                <div className="font-semibold">{display}</div>
-                {tx.recipient_phone && <div className="text-sm text-gray-400">Phone number: {tx.recipient_phone}</div>}
+              <div className="mt-3 text-[15px] app-sub">
+                {dateStr} | {timeStr}
+              </div>
+
+              <div className="mt-4 text-[30px] font-bold">Ksh {formatKsh(tx.amount)}</div>
+
+              <div className="mt-2 text-[14px] app-sub">
+                Transaction cost: <span className="font-semibold app-text">Ksh {formatKsh(feeAmount)}</span>
+              </div>
+
+              <div
+                className="inline-flex items-center gap-3 mt-4 rounded-lg px-3 py-2"
+                style={{ background: "var(--app-chip)" }}
+              >
+                <span className="text-[14px] app-sub">
+                  ID: <span className="text-[#00A651] font-semibold">{tx.mpesa_id}</span>
+                </span>
+                <button
+                  onClick={() => navigator.clipboard.writeText(tx.mpesa_id)}
+                  className="flex items-center gap-1 text-[14px]"
+                >
+                  <Copy size={14} className="text-[#E60012]" />
+                  <span className="text-[#00A651]">Copy</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-xl p-4" style={{ background: "var(--app-chip)" }}>
+              <div className="text-[13px] app-sub">Sent to:</div>
+              <div className="flex items-center gap-3 mt-2">
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center font-semibold"
+                  style={{
+                    background: `color-mix(in oklab, ${getAvatarColor(display)} 22%, var(--app-surface))`,
+                    color: getAvatarColor(display),
+                  }}
+                >
+                  {getInitials(display)}
+                </div>
+                <div>
+                  <div className="font-semibold text-[16px]">{display}</div>
+                  {tx.recipient_phone && (
+                    <div className="text-[15px] app-sub">Phone number: {tx.recipient_phone}</div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -120,22 +150,29 @@ function Success() {
         <div className="grid grid-cols-4 gap-2 mt-8">
           {[
             { Icon: Star, label: "Add to\nfavourites" },
+            { Icon: CalendarClock, label: "Schedule\nPayment" },
+            { Icon: FileText, label: "Download\nreceipt" },
             { Icon: RotateCw, label: "Reverse\ntransaction" },
-            { Icon: Download, label: "Download\nreceipt" },
-            { Icon: Share2, label: "Share\ndetails" },
           ].map(({ Icon, label }) => (
             <button key={label} className="flex flex-col items-center gap-2 active:opacity-70">
-              <div className="w-12 h-12 rounded-full bg-[#1A1A1A] flex items-center justify-center">
-                <Icon size={20} className="text-[#00C853]" />
-              </div>
-              <span className="text-[11px] text-center text-white whitespace-pre-line leading-tight">{label}</span>
+              <span
+                className="w-12 h-12 rounded-full flex items-center justify-center"
+                style={{ background: "var(--app-chip)" }}
+              >
+                <Icon size={20} className="text-[#00A651]" />
+              </span>
+              <span className="text-[12px] text-center app-text whitespace-pre-line leading-tight">
+                {label}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="px-4 pb-6 mt-6">
-        <button onClick={() => navigate({ to: "/" })} className="solid-green">Done</button>
+      <div className="px-5 pb-8 mt-6">
+        <button onClick={() => navigate({ to: "/" })} className="solid-green text-base">
+          Done
+        </button>
       </div>
     </div>
   );

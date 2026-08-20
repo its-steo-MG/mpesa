@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { initTheme } from "../lib/theme";
+
 
 // ==================== NOTIFICATION SYSTEM ====================
 import NotificationProvider from "@/components/NotificationProvider";
@@ -100,15 +102,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      {
-        rel: "manifest",
-        href: "/manifest.webmanifest",
-      },
-      {
-        rel: "apple-touch-icon",
-        href: "/mpesa-icon.png",
-      },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
     ],
+
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -133,31 +129,9 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
-  // ==================== PWA SERVICE WORKER ====================
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      import("virtual:pwa-register").then(({ registerSW }) => {
-        const updateSW = registerSW({
-          immediate: true,
-          onNeedRefresh() {
-            const shouldUpdate = window.confirm(
-              "A new version of My OneApp is available.\n\nWould you like to update now?"
-            );
-            if (shouldUpdate) {
-              updateSW(true);
-            }
-          },
-          onOfflineReady() {
-            console.log("%c[ PWA ] App is ready to work offline.", "color: #00C853");
-          },
-          onRegistered() {
-            console.log("%c[ PWA ] Service Worker registered successfully", "color: #00C853");
-          },
-        });
-      });
-    }
-  }, []);
-  // ========================================================
+  useEffect(() => initTheme(), []);
+
+
 
   return (
     <QueryClientProvider client={queryClient}>

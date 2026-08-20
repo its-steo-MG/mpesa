@@ -90,54 +90,56 @@ function Confirm() {
   };
 
   return (
-    <div className="phone-shell text-white flex flex-col min-h-screen page-enter">
-      <div className="flex items-center px-4 pt-3 pb-2">
+    <div className="phone-shell app-text flex flex-col min-h-screen page-enter">
+      <div className="flex items-center px-5 pt-4 pb-2">
         <button
-          onClick={() => navigate({ to: "/send-money" })}
-          className="w-9 h-9 rounded-full bg-[#1A1A1A] flex items-center justify-center"
+          onClick={() => (step === "pin" ? setStep("review") : navigate({ to: "/send-money" }))}
+          className="w-10 h-10 rounded-full app-card flex items-center justify-center"
         >
           <ChevronLeft size={20} />
         </button>
-        <h1 className="flex-1 text-center font-semibold -ml-9">
+        <h1 className="flex-1 text-center font-semibold text-[17px] -ml-10">
           {step === "review" ? "Confirm" : "Enter M-PESA PIN"}
         </h1>
       </div>
 
       {/* Step 1: Review */}
       {step === "review" && (
-        <div className="flex-1 flex items-center justify-center px-4">
+        <div className="flex-1 flex items-center justify-center px-5">
           <div className="w-full" style={{ animation: "slide-up 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
-            <div className="relative ring-card pt-10 pb-5 px-5">
+            <div className="relative">
               {/* Avatar */}
               <div
-                className="absolute -top-7 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full 
-                           flex items-center justify-center text-white font-semibold z-30
-                           border-4 border-black"
-                style={{ background: getAvatarColor(name) }}
+                className="absolute -top-[34px] left-1/2 -translate-x-1/2 w-[68px] h-[68px] rounded-full
+                           flex items-center justify-center font-semibold text-lg z-30 border-4"
+                style={{
+                  background: `color-mix(in oklab, ${getAvatarColor(name)} 22%, var(--app-surface))`,
+                  color: getAvatarColor(name),
+                  borderColor: "var(--app-bg)",
+                }}
               >
                 {getInitials(name)}
               </div>
 
-              <div className="ring-card-inner wave-bg pt-6 pb-3">
-                <div className="text-center font-semibold">Send Money</div>
-              </div>
-
-              <div className="mt-3 divide-y divide-gray-800">
-                <div className="py-3">
-                  <div className="text-xs text-gray-400">Send to</div>
-                  <div className="font-semibold text-base mt-0.5">{name}</div>
+              <div className="ring-card pt-0">
+                <div className="ring-card-inner wave-bg pt-12 pb-5">
+                  <div className="text-center font-medium text-[17px]">Send Money</div>
                 </div>
 
-                <div className="py-3">
-                  <div className="text-xs text-gray-400">Amount</div>
-                  <div className="font-semibold text-base mt-0.5">Ksh {formatKsh(amount)}</div>
-                </div>
+                <div className="px-5">
+                  <div className="py-4 border-t app-line">
+                    <div className="text-[13px] app-sub">Send to</div>
+                    <div className="font-semibold text-[17px] mt-1">{name}</div>
+                  </div>
 
-                {/* Transaction Cost */}
-                <div className="py-3">
-                  <div className="text-xs text-gray-400">Transaction cost</div>
-                  <div className="font-semibold text-base mt-0.5 text-[#00C853]">
-                    {displayFee()}
+                  <div className="py-4 border-t app-line">
+                    <div className="text-[13px] app-sub">Amount</div>
+                    <div className="font-semibold text-[17px] mt-1">Ksh {formatKsh(amount)}</div>
+                  </div>
+
+                  <div className="py-4 border-t app-line">
+                    <div className="text-[13px] app-sub">Transaction cost</div>
+                    <div className="font-semibold text-[17px] mt-1">{displayFee()}</div>
                   </div>
                 </div>
               </div>
@@ -151,7 +153,7 @@ function Confirm() {
         <div className="flex-1 flex flex-col items-center px-6 pt-8">
           <div className="text-center mb-8">
             <div className="text-lg font-semibold">Enter M-PESA PIN</div>
-            <p className="text-sm text-gray-400 mt-1">to authorize this transaction</p>
+            <p className="text-sm app-sub mt-1">to authorize this transaction</p>
           </div>
 
           {/* PIN Dots */}
@@ -160,44 +162,35 @@ function Confirm() {
               <div
                 key={i}
                 className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center transition-all ${
-                  i < pin.length ? "border-[#00C853]" : "border-gray-700"
+                  i < pin.length ? "border-[#2ba84a]" : "app-line"
                 }`}
               >
-                {i < pin.length && (
-                  <span className="w-3 h-3 rounded-full bg-[#00C853]" />
-                )}
+                {i < pin.length && <span className="w-3 h-3 rounded-full bg-[#2ba84a]" />}
               </div>
             ))}
           </div>
 
-          {error && <p className="text-red-400 text-sm mb-6 text-center px-4">{error}</p>}
+          {error && <p className="text-red-500 text-sm mb-6 text-center px-4">{error}</p>}
         </div>
       )}
 
       {/* Bottom Section */}
-      <div className="px-4 pb-8 mt-auto">
+      <div className="px-5 pb-8 mt-auto">
         {step === "review" ? (
-          <button
-            onClick={() => setStep("pin")}
-            className="solid-green w-full py-4 text-base font-semibold"
-          >
-            Continue to PIN
+          <button onClick={() => setStep("pin")} className="solid-green text-base">
+            Send
           </button>
         ) : (
           /* PIN Keypad */
           <div className="grid grid-cols-3 gap-y-4">
             {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((k) => (
-              <button
-                key={k}
-                className="keypad-key text-[34px]"
-                onClick={() => handlePinPress(k)}
-              >
+              <button key={k} className="keypad-key text-[34px]" onClick={() => handlePinPress(k)}>
                 {k}
               </button>
             ))}
 
             <button className="keypad-key" onClick={() => handlePinPress("del")}>
-              <span className="w-12 h-9 rounded-lg border-2 border-[#00C853] flex items-center justify-center">
+              <span className="w-12 h-9 rounded-lg border-2 border-[#2ba84a] flex items-center justify-center">
                 <Delete size={18} className="text-red-500" />
               </span>
             </button>

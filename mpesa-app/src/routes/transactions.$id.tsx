@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { X, Copy, Download, Share2 } from "lucide-react";
+import { Copy, Download, Share2, Star, RotateCcw, Check } from "lucide-react";
 import { getInitials, getAvatarColor, maskPhone, formatKsh } from "@/lib/mpesa-utils";
 import { getTx, type Tx } from "@/lib/mpesa-store";
 import { apiTransactions, hasBackend } from "@/lib/mpesa-api";
@@ -15,6 +15,7 @@ function TxDetail() {
   const { id } = Route.useParams();
   const [tx, setTx] = useState<Tx | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   const loadTransaction = async () => {
     setLoading(true);
@@ -42,11 +43,9 @@ function TxDetail() {
           return;
         }
       }
-      // Fallback to local storage
       const localTx = getTx(id);
       setTx(localTx || null);
-    } catch (err) {
-      console.warn("Failed to load from backend, using local");
+    } catch {
       const localTx = getTx(id);
       setTx(localTx || null);
     } finally {
@@ -60,7 +59,7 @@ function TxDetail() {
 
   if (loading) {
     return (
-      <div className="phone-shell flex items-center justify-center text-gray-500">
+      <div className="phone-shell flex items-center justify-center app-sub">
         <div className="text-center">
           <div className="spinner mx-auto mb-4" style={{ width: 32, height: 32 }} />
           <p>Loading transaction...</p>
@@ -71,7 +70,7 @@ function TxDetail() {
 
   if (!tx) {
     return (
-      <div className="phone-shell flex items-center justify-center text-gray-500">
+      <div className="phone-shell flex items-center justify-center app-sub">
         Transaction not found
       </div>
     );
@@ -79,138 +78,146 @@ function TxDetail() {
 
   const isOut = tx.transaction_type !== "deposit";
   const display = tx.recipient_name || tx.description || "Transaction";
-  const dateStr = new Date(tx.created_at).toLocaleDateString("en-GB", { 
-    day: "numeric", month: "short", year: "numeric" 
-  });
-  const timeStr = new Date(tx.created_at).toLocaleTimeString("en-US", { 
-    hour: "numeric", minute: "2-digit", hour12: true 
-  }).toLowerCase().replace(" ", "");
+  const color = getAvatarColor(display);
+  const d = new Date(tx.created_at);
+  const day = d.getDate();
+  const suffix = day % 10 === 1 && day !== 11 ? "th" : day % 10 === 2 && day !== 12 ? "nd" : day % 10 === 3 && day !== 13 ? "rd" : "th";
+  const dateStr = `${day}${day === 1 || day === 21 || day === 31 ? "st" : suffix} ${d.toLocaleDateString("en-GB", { month: "short", year: "numeric" })}`;
+  const timeStr = d
+    .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
+    .replace(" ", "")
+    .toUpperCase();
 
-  // ==================== IMPROVED LABEL LOGIC ====================
-  const isWalletTransaction = 
-    tx.description?.toLowerCase().includes("sashitrendy") || 
+  const isWalletTransaction =
+    tx.description?.toLowerCase().includes("sashitrendy") ||
     tx.description?.toLowerCase().includes("wallet");
 
-  const isMerchant = 
-    tx.category === "buygoods" || 
+  const isMerchant =
+    tx.category === "buygoods" ||
     (tx.category === "deposit" && !!tx.till_number) ||
     isWalletTransaction;
 
   const label = isMerchant ? "Merchant Customer Payment" : "Send Money";
-  // ============================================================
+  const amountText = `${isOut ? "-" : "+"} KSH ${formatKsh(tx.amount)}`;
 
-  const amountSign = isOut ? "-" : "+";
-  const amountText = `${amountSign} KSH ${formatKsh(tx.amount)}`;
+  const copyId = () => {
+    navigator.clipboard.writeText(tx.mpesa_id);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  const actions = [
+    { icon: Star, label: "Add to\nfavourites" },
+    { icon: RotateCcw, label: "Reverse\ntransaction" },
+    { icon: Download, label: "Download\nreceipt" },
+    { icon: Share2, label: "Share\ndetails" },
+  ];
 
   return (
-    <div className="phone-shell text-white flex flex-col min-h-screen pb-6 page-enter">
+    <div className="phone-shell app-text flex flex-col min-h-[100dvh] page-enter">
       {/* Top Bar */}
-      <div className="flex items-center px-4 pt-3 pb-2">
-        <button 
-          onClick={() => navigate({ to: "/statements" })} 
-          className="w-9 h-9 rounded-full bg-[#1A1A1A] flex items-center justify-center relative"
+      <div className="flex items-center px-4 pt-4 pb-2">
+        <button
+          onClick={() => navigate({ to: "/statements" })}
+          aria-label="Close"
+          className="w-11 h-11 rounded-full app-card flex items-center justify-center active:opacity-80"
         >
-          <div className="relative w-5 h-5">
-            <div className="absolute top-1/2 left-0 w-5 h-[2.5px] bg-red-500 rotate-45 rounded" />
-            <div className="absolute top-1/2 left-0 w-5 h-[2.5px] bg-[#00C853] -rotate-45 rounded" />
+          <div className="relative w-[18px] h-[18px]">
+            <div className="absolute top-1/2 left-0 w-[18px] h-[2px] -mt-[1px] bg-[#E53935] rotate-45 rounded" />
+            <div className="absolute top-1/2 left-0 w-[18px] h-[2px] -mt-[1px] bg-[#00C853] -rotate-45 rounded" />
           </div>
         </button>
-        <div className="flex-1 text-center text-gray-400 text-sm -ml-9">
+        <div className="flex-1 text-center app-sub text-[15px] -ml-11">
           {dateStr} | {timeStr}
         </div>
       </div>
 
-      <div className="px-4 mt-6 flex-1">
+      {/* Card */}
+      <div className="px-4 mt-16">
         <div className="relative">
-          <div className="relative bg-[#111114] rounded-3xl pt-14 pb-8 px-5 overflow-visible">
-            {/* Gradient Top Border */}
-            <div className="absolute left-0 right-0 top-0 h-[3px] bg-gradient-to-r from-[#1E88E5] via-[#00C853] to-[#1E88E5] z-0" />
-
-            {/* Floating Avatar */}
-            <div className="absolute left-1/2 -translate-x-1/2 -top-9 z-20">
-              <div 
-                className="w-[78px] h-[78px] rounded-full flex items-center justify-center text-3xl font-bold border-[5px] border-[#111114]"
-                style={{ 
-                  background: getAvatarColor(display), 
-                  color: "#111",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.6)"
-                }}
+          {/* Floating Avatar */}
+          <div className="absolute left-1/2 -translate-x-1/2 -top-[54px] z-20">
+            <div
+              className="w-[110px] h-[110px] rounded-full flex items-center justify-center app-bg p-[6px]"
+              style={{ boxShadow: "0 0 0 1px var(--app-line)" }}
+            >
+              <div
+                className="w-full h-full rounded-full flex items-center justify-center text-2xl font-bold"
+                style={{ background: `${color}22`, color }}
               >
                 {getInitials(display)}
               </div>
             </div>
+          </div>
 
-            {/* Content */}
-            <div className="text-center pt-3">
-              <div className="inline-block px-5 py-1 rounded-full border border-gray-700 text-xs text-gray-300 mb-3">
+          <div className="ring-card pt-16 pb-7 px-5">
+            <div className="text-center">
+              <div className="inline-block px-4 py-1.5 rounded-full border app-line text-[13px] app-sub">
                 {label}
               </div>
-
-              <div className="text-xl font-semibold">{display}</div>
-
-              {/* Amount - Made smaller and less bold */}
-              <div className="text-3xl font-semibold mt-2 text-white tracking-tight">
-                {amountText}
-              </div>
+              <div className="text-[19px] mt-4">{display}</div>
+              <div className="text-[30px] font-bold mt-1.5 tracking-tight">{amountText}</div>
             </div>
 
-            {/* Details Section */}
-            <div className="mt-8 space-y-5">
+            <div className="mt-10 space-y-5">
               {tx.till_number && (
                 <div>
-                  <div className="text-xs text-gray-400">Till Number</div>
-                  <div className="text-2xl mt-1">{tx.till_number}</div>
+                  <div className="text-[13px] app-sub">Transaction Number</div>
+                  <div className="text-[22px] mt-0.5">{tx.till_number}</div>
                 </div>
               )}
 
-              {tx.recipient_phone && (
+              {!tx.till_number && tx.recipient_phone && (
                 <div>
-                  <div className="text-xs text-gray-400">Phone Number</div>
-                  <div className="text-2xl mt-1">{maskPhone(tx.recipient_phone)}</div>
+                  <div className="text-[13px] app-sub">Phone Number</div>
+                  <div className="text-[22px] mt-0.5">{maskPhone(tx.recipient_phone)}</div>
                 </div>
               )}
 
-              <div className="pt-4 border-t border-gray-800">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <div className="text-xs text-gray-400">Transaction ID</div>
-                    <div className="font-mono text-xl mt-1">{tx.mpesa_id}</div>
-                  </div>
-
-                  <button 
-                    onClick={() => navigator.clipboard.writeText(tx.mpesa_id)}
-                    className="flex items-center gap-1.5 bg-[#1F1F22] rounded-xl px-3 py-2 active:bg-[#2A2A2A] shrink-0"
+              <div className="pt-5 border-t app-line">
+                <div className="text-[13px] app-sub">Transaction ID</div>
+                <div className="flex items-center gap-3 mt-0.5">
+                  <div className="text-[22px] tracking-tight">{tx.mpesa_id}</div>
+                  <button
+                    onClick={copyId}
+                    className="flex items-center gap-1.5 app-card rounded-lg px-3 py-2 active:opacity-80 shrink-0"
                   >
-                    <Copy size={16} className="text-red-500" />
-                    <span className="text-[#00C853] text-sm font-medium">Copy</span>
+                    {copied ? (
+                      <Check size={15} className="text-[#00C853]" />
+                    ) : (
+                      <Copy size={15} className="text-[#E53935]" />
+                    )}
+                    <span className="text-[#00C853] text-sm font-medium">
+                      {copied ? "Copied" : "Copy"}
+                    </span>
                   </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        {isMerchant && (
-          <div className="grid grid-cols-2 gap-4 mt-12 px-1">
-            <button className="flex flex-col items-center gap-3 py-5 bg-[#1A1A1A] rounded-2xl active:bg-[#252525]">
-              <Download size={26} className="text-[#00C853]" />
-              <span className="text-sm">Download receipt</span>
-            </button>
-            <button className="flex flex-col items-center gap-3 py-5 bg-[#1A1A1A] rounded-2xl active:bg-[#252525]">
-              <Share2 size={26} className="text-[#00C853]" />
-              <span className="text-sm">Share details</span>
-            </button>
-          </div>
-        )}
       </div>
 
-      {/* Done Button */}
-      <div className="px-5 pt-8 pb-6">
-        <button 
-          onClick={() => navigate({ to: "/statements" })}
-          className="solid-green w-full py-4 text-base font-semibold"
-        >
+      <div className="flex-1" />
+
+      {/* Actions (non-merchant) */}
+      {!isMerchant && (
+        <div className="grid grid-cols-4 gap-2 px-4 pb-4">
+          {actions.map(({ icon: Icon, label: l }) => (
+            <button key={l} className="flex flex-col items-center gap-2 active:opacity-70">
+              <div className="w-12 h-12 rounded-full app-card flex items-center justify-center">
+                <Icon size={20} className="text-[#00C853]" />
+              </div>
+              <span className="text-[12px] leading-tight text-center whitespace-pre-line app-text">
+                {l}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="px-4 pb-8 pt-2">
+        <button onClick={() => navigate({ to: "/statements" })} className="solid-green text-base">
           Done
         </button>
       </div>

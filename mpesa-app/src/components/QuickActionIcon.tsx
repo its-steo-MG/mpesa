@@ -18,7 +18,7 @@ export function QuickActionIcon({ slug, label, fallbackColor, fallbackEmoji, to 
 
   const content = (
     <div className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform cursor-pointer">
-      <div className="w-14 h-14 rounded-full bg-[#1A1A1A] flex items-center justify-center overflow-hidden border border-gray-800">
+      <div className="w-14 h-14 rounded-full app-card flex items-center justify-center overflow-hidden border app-line">
         {!errored ? (
           <img
             src={`/icons/${slug}.png`}
@@ -35,7 +35,7 @@ export function QuickActionIcon({ slug, label, fallbackColor, fallbackEmoji, to 
           </div>
         )}
       </div>
-      <span className="text-[10px] text-center leading-tight font-medium text-gray-200 whitespace-pre-line px-1">
+      <span className="text-[10px] text-center leading-tight font-medium app-sub whitespace-pre-line px-1">
         {label}
       </span>
     </div>

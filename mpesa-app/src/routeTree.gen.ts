@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatementsRouteImport } from './routes/statements'
 import { Route as SendMoneyRouteImport } from './routes/send-money'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SendMoneyIndexRouteImport } from './routes/send-money.index'
@@ -26,6 +27,11 @@ const StatementsRoute = StatementsRouteImport.update({
 const SendMoneyRoute = SendMoneyRouteImport.update({
   id: '/send-money',
   path: '/send-money',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -62,6 +68,7 @@ const SendMoneyConfirmRoute = SendMoneyConfirmRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/send-money': typeof SendMoneyRouteWithChildren
   '/statements': typeof StatementsRoute
   '/send-money/confirm': typeof SendMoneyConfirmRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/statements': typeof StatementsRoute
   '/send-money/confirm': typeof SendMoneyConfirmRoute
   '/send-money/success': typeof SendMoneySuccessRoute
@@ -82,6 +90,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/send-money': typeof SendMoneyRouteWithChildren
   '/statements': typeof StatementsRoute
   '/send-money/confirm': typeof SendMoneyConfirmRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/profile'
     | '/send-money'
     | '/statements'
     | '/send-money/confirm'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/profile'
     | '/statements'
     | '/send-money/confirm'
     | '/send-money/success'
@@ -113,6 +124,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/login'
+    | '/profile'
     | '/send-money'
     | '/statements'
     | '/send-money/confirm'
@@ -124,6 +136,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   SendMoneyRoute: typeof SendMoneyRouteWithChildren
   StatementsRoute: typeof StatementsRoute
   TransactionsIdRoute: typeof TransactionsIdRoute
@@ -143,6 +156,13 @@ declare module '@tanstack/react-router' {
       path: '/send-money'
       fullPath: '/send-money'
       preLoaderRoute: typeof SendMoneyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -209,6 +229,7 @@ const SendMoneyRouteWithChildren = SendMoneyRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   SendMoneyRoute: SendMoneyRouteWithChildren,
   StatementsRoute: StatementsRoute,
   TransactionsIdRoute: TransactionsIdRoute,

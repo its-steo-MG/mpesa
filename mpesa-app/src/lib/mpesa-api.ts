@@ -179,6 +179,64 @@ export async function apiLogin(phone_number: string, pin: string) {
   }
 }
 
+// ==================== BIOMETRIC (FACE ID / FINGERPRINT) LOGIN ====================
+/**
+ * Completes a login after the device has verified the user with Face ID /
+ * fingerprint. When a backend is configured we post the WebAuthn assertion to
+ * /mpesa/biometric-login/ so the server can issue the JWT. If that endpoint is
+ * not available yet we fall back to the normal PIN login using the PIN stored
+ * during biometric enrolment, so the flow keeps working end to end.
+ */
+export async function apiBiometricLogin(assertion: {
+  credential_id: string;
+  client_data: string;
+  authenticator_data: string;
+  signature: string;
+  user_handle: string | null;
+  phone: string;
+  pin: string;
+}) {
+  if (!hasBackend()) {
+    setAuthed(true);
+    return { ok: true, mode: "local" as const };
+  }
+
+  try {
+    const res = await axios.post(`${API_URL}/mpesa/biometric-login/`, {
+      phone_number: assertion.phone,
+      credential_id: assertion.credential_id,
+      client_data: assertion.client_data,
+      authenticator_data: assertion.authenticator_data,
+      signature: assertion.signature,
+      user_handle: assertion.user_handle,
+    });
+    if (res.data?.access) {
+      setToken(res.data.access);
+      setAuthed(true);
+    }
+    return res.data;
+  } catch (error: any) {
+    // Backend has no biometric endpoint yet (or rejected it) -> PIN fallback.
+    console.warn("Biometric login endpoint unavailable, falling back to PIN");
+    return apiLogin(assertion.phone, assertion.pin);
+  }
+}
+
+/** Registers a device credential id with the backend (optional). */
+export async function apiRegisterBiometric(credential_id: string, phone_number: string) {
+  if (!hasBackend()) return { ok: true };
+  try {
+    const res = await axios.post(
+      `${API_URL}/mpesa/biometric-register/`,
+      { credential_id, phone_number },
+      auth(),
+    );
+    return res.data;
+  } catch {
+    return { ok: false };
+  }
+}
+
 export async function apiProfile() {
   if (!hasBackend()) return getProfile();
 
@@ -240,6 +298,8 @@ export async function apiConnectMpesa(data: any) {
 // ==================== API OBJECT (for hooks like useNotifications) ====================
 export const api = {
   listMpesaNotifications,
+  apiBiometricLogin,
+  apiRegisterBiometric,
   hasBackend,
   // You can add more methods here later if needed
 };
@@ -252,6 +312,8 @@ export default {
   apiSendMoney,
   apiLookupRecipient,
   apiConnectMpesa,
+  apiBiometricLogin,
+  apiRegisterBiometric,
   listMpesaNotifications,
   hasBackend,
   getToken,

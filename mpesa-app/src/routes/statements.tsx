@@ -89,25 +89,25 @@ function Statements() {
 
   if (loading) {
     return (
-      <div className="phone-shell text-white flex items-center justify-center min-h-screen">
+      <div className="phone-shell app-text flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="spinner mx-auto mb-4" style={{ width: 40, height: 40 }} />
-          <p className="text-gray-400">Loading transactions...</p>
+          <p className="app-sub">Loading transactions...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="phone-shell text-white pb-24 page-enter">
+    <div className="phone-shell app-text pb-24 page-enter">
       {/* Header */}
-      <div className="flex items-center px-4 pt-3 pb-2 sticky top-0 bg-black z-20 border-b border-gray-800">
+      <div className="flex items-center px-4 pt-3 pb-2 sticky top-0 app-bg z-20 border-b app-line">
         <button 
           onClick={() => {
             console.log("Back button clicked"); // For debugging
             navigate({ to: "/" });
           }} 
-          className="w-9 h-9 rounded-full bg-[#1A1A1A] flex items-center justify-center active:bg-[#252525] transition-colors cursor-pointer z-50"
+          className="w-9 h-9 rounded-full app-card flex items-center justify-center active:opacity-80 transition-colors cursor-pointer z-50"
         >
           <ChevronLeft size={22} />
         </button>
@@ -116,15 +116,15 @@ function Statements() {
 
       {/* Search */}
       <div className="px-4 mt-4">
-        <div className="flex items-center bg-transparent border border-gray-700 rounded-xl px-3 py-3 gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#1A1A1A] flex items-center justify-center">
+        <div className="flex items-center bg-transparent border app-line rounded-xl px-3 py-3 gap-3">
+          <div className="w-8 h-8 rounded-full app-card flex items-center justify-center">
             <Search size={16} className="text-[#00C853]" />
           </div>
           <input 
             value={q} 
             onChange={e => setQ(e.target.value)} 
             placeholder="Search transactions" 
-            className="flex-1 bg-transparent outline-none text-base placeholder:text-gray-400" 
+            className="flex-1 bg-transparent outline-none text-base placeholder:opacity-50" 
           />
         </div>
       </div>
@@ -139,13 +139,13 @@ function Statements() {
       {/* Transactions List */}
       <div className="mt-4">
         {Object.entries(grouped).length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
+          <div className="text-center py-12 app-sub">
             No transactions found
           </div>
         ) : (
           Object.entries(grouped).map(([date, list]) => (
             <div key={date}>
-              <div className="px-4 py-3 text-sm font-medium text-gray-300 sticky top-0 bg-black z-10">
+              <div className="px-4 py-3 text-sm font-medium app-sub sticky top-0 app-bg z-10">
                 {date}
               </div>
               <div className="px-2">
@@ -159,7 +159,7 @@ function Statements() {
                       key={t.id} 
                       to="/transactions/$id" 
                       params={{ id: String(t.id) }} 
-                      className="flex items-center gap-3 px-3 py-4 rounded-2xl active:bg-[#1A1A1A] transition"
+                      className="flex items-center gap-3 px-3 py-4 rounded-2xl active:opacity-80 transition"
                     >
                       <div 
                         className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-semibold shrink-0" 
@@ -170,14 +170,14 @@ function Statements() {
 
                       <div className="flex-1 min-w-0">
                         <div className="text-[15px] font-semibold truncate">{display}</div>
-                        <div className="text-xs text-gray-500 truncate mt-0.5">{sub}</div>
+                        <div className="text-xs app-sub truncate mt-0.5">{sub}</div>
                       </div>
 
                       <div className="text-right shrink-0">
-                        <div className="text-[15px] font-semibold text-white">
+                        <div className="text-[15px] font-semibold app-text">
                           {isOut ? "- " : "+ "}Ksh {formatKsh(t.amount)}
                         </div>
-                        <div className="text-xs text-gray-500 mt-0.5">
+                        <div className="text-xs app-sub mt-0.5">
                           {new Date(t.created_at).toLocaleTimeString("en-US", { 
                             hour: "2-digit", 
                             minute: "2-digit", 
@@ -195,7 +195,7 @@ function Statements() {
       </div>
 
       {/* Floating Button */}
-      <button className="fixed bottom-5 right-4 bg-[#1A1A1A] rounded-full px-5 py-3 flex items-center gap-2 shadow-2xl border border-[#00C853]/30 active:scale-95 transition">
+      <button className="fixed bottom-5 right-4 app-card rounded-full px-5 py-3 flex items-center gap-2 shadow-2xl border border-[#00C853]/30 active:scale-95 transition">
         <FileText size={16} className="text-[#00C853]" />
         <span className="text-[#00C853] font-semibold text-sm">Statement Options</span>
       </button>
