@@ -9,29 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as StatementsRouteImport } from './routes/statements'
-import { Route as SendMoneyRouteImport } from './routes/send-money'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as SendMoneyRouteImport } from './routes/send-money'
+import { Route as StatementsRouteImport } from './routes/statements'
 import { Route as SendMoneyIndexRouteImport } from './routes/send-money.index'
-import { Route as TransactionsIdRouteImport } from './routes/transactions.$id'
-import { Route as SendMoneySuccessRouteImport } from './routes/send-money.success'
 import { Route as SendMoneyConfirmRouteImport } from './routes/send-money.confirm'
+import { Route as SendMoneySuccessRouteImport } from './routes/send-money.success'
+import { Route as TransactionsIdRouteImport } from './routes/transactions.$id'
 
-const StatementsRoute = StatementsRouteImport.update({
-  id: '/statements',
-  path: '/statements',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SendMoneyRoute = SendMoneyRouteImport.update({
-  id: '/send-money',
-  path: '/send-money',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -39,9 +29,19 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SendMoneyRoute = SendMoneyRouteImport.update({
+  id: '/send-money',
+  path: '/send-money',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatementsRoute = StatementsRouteImport.update({
+  id: '/statements',
+  path: '/statements',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SendMoneyIndexRoute = SendMoneyIndexRouteImport.update({
@@ -49,20 +49,20 @@ const SendMoneyIndexRoute = SendMoneyIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SendMoneyRoute,
 } as any)
-const TransactionsIdRoute = TransactionsIdRouteImport.update({
-  id: '/transactions/$id',
-  path: '/transactions/$id',
-  getParentRoute: () => rootRouteImport,
+const SendMoneyConfirmRoute = SendMoneyConfirmRouteImport.update({
+  id: '/confirm',
+  path: '/confirm',
+  getParentRoute: () => SendMoneyRoute,
 } as any)
 const SendMoneySuccessRoute = SendMoneySuccessRouteImport.update({
   id: '/success',
   path: '/success',
   getParentRoute: () => SendMoneyRoute,
 } as any)
-const SendMoneyConfirmRoute = SendMoneyConfirmRouteImport.update({
-  id: '/confirm',
-  path: '/confirm',
-  getParentRoute: () => SendMoneyRoute,
+const TransactionsIdRoute = TransactionsIdRouteImport.update({
+  id: '/transactions/$id',
+  path: '/transactions/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -144,25 +144,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/statements': {
-      id: '/statements'
-      path: '/statements'
-      fullPath: '/statements'
-      preLoaderRoute: typeof StatementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/send-money': {
-      id: '/send-money'
-      path: '/send-money'
-      fullPath: '/send-money'
-      preLoaderRoute: typeof SendMoneyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -172,11 +158,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/send-money': {
+      id: '/send-money'
+      path: '/send-money'
+      fullPath: '/send-money'
+      preLoaderRoute: typeof SendMoneyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/statements': {
+      id: '/statements'
+      path: '/statements'
+      fullPath: '/statements'
+      preLoaderRoute: typeof StatementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/send-money/': {
@@ -186,12 +186,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SendMoneyIndexRouteImport
       parentRoute: typeof SendMoneyRoute
     }
-    '/transactions/$id': {
-      id: '/transactions/$id'
-      path: '/transactions/$id'
-      fullPath: '/transactions/$id'
-      preLoaderRoute: typeof TransactionsIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/send-money/confirm': {
+      id: '/send-money/confirm'
+      path: '/confirm'
+      fullPath: '/send-money/confirm'
+      preLoaderRoute: typeof SendMoneyConfirmRouteImport
+      parentRoute: typeof SendMoneyRoute
     }
     '/send-money/success': {
       id: '/send-money/success'
@@ -200,12 +200,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SendMoneySuccessRouteImport
       parentRoute: typeof SendMoneyRoute
     }
-    '/send-money/confirm': {
-      id: '/send-money/confirm'
-      path: '/confirm'
-      fullPath: '/send-money/confirm'
-      preLoaderRoute: typeof SendMoneyConfirmRouteImport
-      parentRoute: typeof SendMoneyRoute
+    '/transactions/$id': {
+      id: '/transactions/$id'
+      path: '/transactions/$id'
+      fullPath: '/transactions/$id'
+      preLoaderRoute: typeof TransactionsIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
