@@ -13,10 +13,10 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { initTheme } from "../lib/theme";
 
-
 // ==================== NOTIFICATION SYSTEM ====================
 import NotificationProvider from "@/components/NotificationProvider";
 import { NotificationWatcher } from "@/components/NotificationWatcher";
+import { useMpesaPush } from "@/hooks/useMpesaPush";
 // ========================================================
 
 function NotFoundComponent() {
@@ -104,7 +104,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
     ],
-
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -131,7 +130,8 @@ function RootComponent() {
 
   useEffect(() => initTheme(), []);
 
-
+  // Enable Web Push + live notification polling when the user is logged in
+  useMpesaPush(true);
 
   return (
     <QueryClientProvider client={queryClient}>

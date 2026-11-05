@@ -109,3 +109,71 @@ define(['./workbox-d488705a'], (function (workbox) { 'use strict';
   }), 'GET');
 
 }));
+
+
+// ============================================================
+// WEB PUSH SUPPORT (added for M-Pesa notifications)
+// ============================================================
+
+self.addEventListener("push", (event) => {
+  let data = {
+    title: "MPESA",
+    body: "You have a new notification",
+    icon: "/mpesa-icon-192.png",
+    badge: "/mpesa-icon-192.png",
+    tag: "mpesa-push",
+    data: {},
+  };
+
+  try {
+    if (event.data) {
+      const payload = event.data.json();
+      data = {
+        title: payload.title || payload.caller_id || "MPESA",
+        body: payload.body || payload.message || data.body,
+        icon: payload.icon || data.icon,
+        badge: payload.badge || data.badge,
+        tag: payload.tag || String(payload.id) || data.tag,
+        data: payload.data || payload,
+      };
+    }
+  } catch (e) {
+    // Payload might be plain text
+    if (event.data) {
+      data.body = event.data.text();
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: data.icon,
+      badge: data.badge,
+      tag: data.tag,
+      renotify: true,
+      data: data.data,
+      vibrate: [80, 40, 80],
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const urlToOpen = event.notification.data?.url || "/";
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if (client.url.includes(self.location.origin) && "focus" in client) {
+            return client.focus();
+          }
+        }
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(urlToOpen);
+        }
+      })
+  );
+});

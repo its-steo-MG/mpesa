@@ -92,10 +92,10 @@ export default function NotificationProvider({
 
       <div className="fixed top-0 inset-x-0 z-[9999] flex flex-col items-center pointer-events-none">
         {queue.map((notif) => (
-          <CallerPopup 
-            key={notif.id} 
-            notif={notif} 
-            onDone={() => dismiss(notif.id)} 
+          <CallerPopup
+            key={notif.id}
+            notif={notif}
+            onDone={() => dismiss(notif.id)}
           />
         ))}
       </div>
