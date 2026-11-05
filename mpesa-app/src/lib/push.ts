@@ -3,8 +3,7 @@
  *
  * - Registers service worker (public/sw.js)
  * - Subscribes with VAPID public key from backend
- * - Posts subscription to backend so pushes can be delivered
- * - Polls M-Pesa notifications while the app is open and shows system notifications
+ * - Posts subscription to the M-Pesa endpoint (NOT Binance)
  */
 
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "");
@@ -12,9 +11,12 @@ const PUSH_PUBLIC_KEY =
   (import.meta.env.VITE_WEB_PUSH_PUBLIC_KEY as string | undefined) ||
   (import.meta.env.VITE_BINANCE_WEB_PUSH_PUBLIC_KEY as string | undefined) ||
   "";
+
+// IMPORTANT: must point at the M-Pesa endpoint, never Binance
 const PUSH_SUBSCRIBE_PATH =
   (import.meta.env.VITE_PUSH_SUBSCRIBE_PATH as string | undefined) ||
-  "/binance/push/subscription/";
+  "/mpesa/push/subscription/";
+
 const NOTIF_PATH =
   (import.meta.env.VITE_MPESA_NOTIF_PATH as string | undefined) ||
   "/mpesa-notif/notifications/";
@@ -55,7 +57,7 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
   return Notification.requestPermission();
 }
 
-/** Register for Web Push and send subscription to backend. */
+/** Register for Web Push and send subscription to the M-Pesa backend endpoint. */
 export async function subscribeWebPush(): Promise<boolean> {
   if (!API_URL || !PUSH_PUBLIC_KEY) {
     console.info("[mpesa-push] Skipping web push subscribe (no API_URL or VAPID public key)");
@@ -97,7 +99,7 @@ export async function subscribeWebPush(): Promise<boolean> {
       console.warn("[mpesa-push] Subscribe API failed", res.status);
       return false;
     }
-    console.info("[mpesa-push] Subscription registered");
+    console.info("[mpesa-push] Subscription registered on M-Pesa origin");
     return true;
   } catch (e) {
     console.warn("[mpesa-push] Subscribe error", e);
@@ -105,7 +107,6 @@ export async function subscribeWebPush(): Promise<boolean> {
   }
 }
 
-/** Show a system notification from the page (works when tab is open). */
 export function showLocalNotification(title: string, body: string, tag?: string) {
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
@@ -153,7 +154,6 @@ export type MpesaNotif = {
   mpesa_id?: string;
 };
 
-/** Poll backend notifications and fire system notifications for new ones. */
 export function startNotificationPolling(intervalMs = 15000): () => void {
   if (typeof window === "undefined" || !API_URL) return () => {};
 
@@ -178,12 +178,10 @@ export function startNotificationPolling(intervalMs = 15000): () => void {
       for (const n of list) {
         if (seen.has(n.id)) continue;
         seen.add(n.id);
-        // Don't spam on first load — only notify for truly new ones after app open
         if (!firstRun && !n.is_read) {
           const title = n.caller_id || "MPESA";
           const body = n.message || "You have a new message";
           showLocalNotification(title, body, String(n.id));
-          // Also dispatch for in-app banner
           window.dispatchEvent(
             new CustomEvent("mpesa-new-notification", { detail: n })
           );
@@ -204,7 +202,6 @@ export function startNotificationPolling(intervalMs = 15000): () => void {
   };
 }
 
-/** Call after successful login. */
 export async function setupMpesaPush() {
   await requestNotificationPermission();
   await registerServiceWorker();
