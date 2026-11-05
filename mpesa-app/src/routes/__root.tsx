@@ -13,11 +13,9 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { initTheme } from "../lib/theme";
 
-// ==================== NOTIFICATION SYSTEM ====================
 import NotificationProvider from "@/components/NotificationProvider";
 import { NotificationWatcher } from "@/components/NotificationWatcher";
 import { useMpesaPush } from "@/hooks/useMpesaPush";
-// ========================================================
 
 function NotFoundComponent() {
   return (
@@ -98,11 +96,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#000000" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
+      // REQUIRED so iOS uses "My OneApp" + M-Pesa icons for the notification origin
+      { rel: "manifest", href: "/manifest.json" },
+      { rel: "apple-touch-icon", href: "/mpesa-icon-192.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -135,12 +133,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* ==================== NOTIFICATION SYSTEM ==================== */}
       <NotificationProvider>
         <NotificationWatcher />
         <Outlet />
       </NotificationProvider>
-      {/* ========================================================== */}
     </QueryClientProvider>
   );
 }

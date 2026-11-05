@@ -3,6 +3,7 @@
   "short_name": "My OneApp",
   "description": "Send money, pay bills, withdraw cash - all in one app",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#000000",
