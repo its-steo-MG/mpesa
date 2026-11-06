@@ -19,6 +19,8 @@ import {
   Check,
   LogOut,
   Camera,
+  Bell,
+  BellOff,
 } from "lucide-react";
 
 import { ensureSeed, getProfile, setProfile, setAuthed } from "@/lib/mpesa-store";
@@ -30,6 +32,7 @@ import {
   isBiometricEnabled,
 } from "@/lib/biometric";
 import { getThemeMode, setThemeMode, type ThemeMode } from "@/lib/theme";
+import { setupMpesaPush, disableMpesaPush } from "@/lib/push";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -94,6 +97,9 @@ function ProfilePage() {
   const [bioOn, setBioOn] = useState(false);
   const [showTheme, setShowTheme] = useState(false);
   const [mode, setMode] = useState<ThemeMode>("system");
+  const [pushOn, setPushOn] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushMsg, setPushMsg] = useState("");
 
   useEffect(() => {
     ensureSeed();
@@ -134,6 +140,26 @@ function ProfilePage() {
     }
   };
 
+  const togglePush = async () => {
+    setPushBusy(true);
+    setPushMsg("");
+    try {
+      if (pushOn) {
+        const ok = await disableMpesaPush();
+        setPushOn(!ok);
+        setPushMsg(ok ? "Notifications disabled" : "Could not disable");
+      } else {
+        await setupMpesaPush();
+        setPushOn(true);
+        setPushMsg("Notifications enabled for My OneApp");
+      }
+    } catch {
+      setPushMsg("Could not update notifications");
+    } finally {
+      setPushBusy(false);
+    }
+  };
+
   const chooseTheme = (m: ThemeMode) => {
     setMode(m);
     setThemeMode(m);
@@ -141,7 +167,6 @@ function ProfilePage() {
 
   return (
     <div className="phone-shell page-enter pb-16">
-      {/* Header */}
       <div className="relative flex items-center px-4 pt-4 pb-2">
         <button
           onClick={() => navigate({ to: "/" })}
@@ -153,7 +178,6 @@ function ProfilePage() {
         <h1 className="app-text absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold">Profile</h1>
       </div>
 
-      {/* User card */}
       <div className="app-card mx-4 mt-3 rounded-2xl p-4">
         <div className="flex items-center gap-3">
           <button onClick={() => fileRef.current?.click()} className="relative" aria-label="Change photo">
@@ -189,7 +213,6 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* Quick Actions */}
       <h2 className="app-text mx-4 mt-6 text-[15px] font-semibold">Quick Actions</h2>
       <div className="mx-4 mt-3 grid grid-cols-2 gap-3">
         <button
@@ -220,9 +243,34 @@ function ProfilePage() {
           </div>
           <span className="app-text text-[13px]">Biometric Authentication</span>
         </div>
+
+        <div className="app-card flex h-[104px] flex-col justify-between rounded-2xl p-3 col-span-2">
+          <div className="flex items-start justify-between">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#00C853]/12">
+              {pushOn ? (
+                <Bell size={18} className="text-[#00C853]" />
+              ) : (
+                <BellOff size={18} className="text-[#00C853]" />
+              )}
+            </span>
+            <button
+              onClick={() => void togglePush()}
+              disabled={pushBusy}
+              aria-label="Toggle phone notifications"
+              className={`relative h-7 w-12 rounded-full transition ${pushOn ? "bg-[#00C853]" : "bg-black/20 dark:bg-white/15"}`}
+            >
+              <span
+                className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-all ${pushOn ? "left-6" : "left-1"}`}
+              />
+            </button>
+          </div>
+          <div>
+            <span className="app-text text-[13px]">Phone Notifications</span>
+            {pushMsg && <p className="app-sub text-[11px] mt-0.5">{pushMsg}</p>}
+          </div>
+        </div>
       </div>
 
-      {/* Quick Care */}
       <h2 className="app-text mx-4 mt-6 text-[15px] font-semibold">Quick Care</h2>
       <div className="mx-4 mt-3 grid grid-cols-3 gap-3">
         {QUICK_CARE.map((q) => (
@@ -230,7 +278,6 @@ function ProfilePage() {
         ))}
       </div>
 
-      {/* Account and Settings */}
       <h2 className="app-text mx-4 mt-6 text-[15px] font-semibold">Account and Settings</h2>
       <div className="mx-4 mt-3 grid grid-cols-3 gap-3">
         <Tile label="About App" Icon={Info} />
@@ -245,7 +292,6 @@ function ProfilePage() {
         />
       </div>
 
-      {/* Theme sheet */}
       {showTheme && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
